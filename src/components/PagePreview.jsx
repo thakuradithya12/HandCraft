@@ -75,7 +75,11 @@ export default function PagePreview({ canvases, currentPage, onPageChange }) {
                         src={previewUrls[currentPage]}
                         alt={`Page ${currentPage + 1}`}
                         key={`${currentPage}-${zoom}`}
-                        style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
+                        style={{
+                            width: `${zoom}%`,
+                            maxWidth: 'none', // Allow image to exceed container width for panning
+                            height: 'auto'
+                        }}
                     />
                 </div>
             </div>

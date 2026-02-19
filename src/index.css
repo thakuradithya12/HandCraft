@@ -1638,63 +1638,7 @@ body {
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 900px) {
-  .app-main {
-    flex-direction: column;
-  }
 
-  .controls-panel {
-    width: 100%;
-    min-width: unset;
-    max-height: 50vh;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .preview-content {
-    padding: 12px;
-  }
-
-  .history-drawer {
-    right: 8px;
-    width: calc(100% - 16px);
-    max-width: 350px;
-  }
-
-  .modal-content {
-    width: 95%;
-  }
-
-  .thumbnail-strip {
-    display: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .app-header {
-    padding: 10px 14px;
-  }
-
-  .app-logo h1 {
-    font-size: 15px;
-  }
-
-  .app-logo .subtitle {
-    display: none;
-  }
-
-  .controls-section {
-    padding: 12px 14px;
-  }
-
-  .action-bar {
-    padding: 10px 14px;
-  }
-
-  .shortcuts-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* ===== HANDWRITING SAMPLER ===== */
 .sampler-step {
@@ -2050,7 +1994,7 @@ body {
   }
 }
 
-/* ===== MOBILE RESPONSIVE ===== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   .controls-panel {
     width: 340px;
@@ -2058,7 +2002,7 @@ body {
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .app-main {
     flex-direction: column;
   }
@@ -2067,39 +2011,96 @@ body {
     width: 100%;
     min-width: 100%;
     height: auto;
-    max-height: 60vh;
+    max-height: 45vh;
+    /* Reduced from 60vh to give more room to preview */
     border-right: none;
     border-bottom: 1px solid var(--border);
   }
 
   .preview-panel {
-    padding: 20px 10px;
+    height: 55vh;
+    /* Explicit height for preview on mobile */
+    padding: 0;
   }
 
+  .preview-content {
+    padding: 20px 10px;
+    align-items: flex-start;
+    /* Better for zoomed scrolling */
+  }
+
+  .thumbnail-strip {
+    display: none;
+  }
+
+  .history-drawer {
+    right: 8px;
+    width: calc(100% - 16px);
+    max-width: 350px;
+  }
+
+  .modal-content {
+    width: 95% !important;
+  }
+}
+
+@media (max-width: 600px) {
   .app-header {
-    padding: 10px 16px;
+    padding: 8px 12px;
   }
 
   .app-logo h1 {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  .app-logo .subtitle {
+    display: none;
+  }
+
+  .controls-section {
+    padding: 10px 12px;
+  }
+
+  .action-bar {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    /* Prevent button overflow */
+  }
+
+  .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .shortcuts-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
   .app-header {
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
+  }
+
+  .header-actions {
+    gap: 2px;
+  }
+
+  .header-btn {
+    width: 32px;
+    height: 32px;
   }
 
   .controls-panel {
-    max-height: 50vh;
+    max-height: 40vh;
+  }
+
+  .preview-panel {
+    height: 60vh;
   }
 
   .control-row {
     flex-direction: column;
-  }
-
-  .preview-panel {
-    padding: 10px 5px;
+    gap: 8px;
   }
 }
