@@ -248,6 +248,28 @@ export const HANDWRITING_STYLES = [
         variationIntensity: 0.55,
         weight: '400',
         description: 'Thick marker pen writing'
+    },
+    {
+        id: 'vintage',
+        name: 'Vintage Quill',
+        fontFamily: 'Herr Von Muellerhoff',
+        fontSize: 58,
+        letterSpacing: 1.2,
+        lineHeight: 1.45,
+        variationIntensity: 0.7,
+        weight: '400',
+        description: 'Antique quill pen calligraphy'
+    },
+    {
+        id: 'tech',
+        name: 'Tech Print',
+        fontFamily: 'Nanum Pen Script',
+        fontSize: 50,
+        letterSpacing: 0.9,
+        lineHeight: 1.6,
+        variationIntensity: 0.4,
+        weight: '400',
+        description: 'Neat technical lettering'
     }
 ];
 
