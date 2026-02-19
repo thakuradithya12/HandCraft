@@ -3,7 +3,19 @@
  * from a simple user prompt like "Write a 5 page assignment on DSA".
  */
 
-const OLLAMA_BASE = 'http://localhost:11434';
+let OLLAMA_BASE = 'http://localhost:11434';
+
+/**
+ * Update the Ollama base URL (e.g., from user settings).
+ */
+export function setOllamaBase(url) {
+    if (!url) return;
+    OLLAMA_BASE = url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
+export function getOllamaBase() {
+    return OLLAMA_BASE;
+}
 
 /**
  * Build the system prompt for generating assignment content.
@@ -97,7 +109,7 @@ export async function generateContent(userPrompt, onProgress = null) {
     const model = await getBestModel();
 
     if (!model) {
-        throw new Error('Ollama is not running or has no models. Please start Ollama and pull a model (e.g., "ollama pull gemma3:1b").');
+        throw new Error(`Ollama is not running at ${OLLAMA_BASE} or has no models. If using on mobile, enter your computer's IP address in AI Settings.`);
     }
 
     const systemPrompt = buildSystemPrompt(pageCount);
@@ -159,7 +171,7 @@ export async function generateAssignment(prompt, onProgress = null, onStatus = n
 
     const status = await checkOllamaStatus();
     if (!status.available) {
-        throw new Error('Cannot connect to Ollama. Make sure Ollama is running on localhost:11434.');
+        throw new Error(`Cannot connect to Ollama at ${OLLAMA_BASE}. Tip: If you are using this site on a phone, make sure your computer and phone are on the same WiFi, and use your computer's IP address (e.g. 192.168.x.x) in AI Settings.`);
     }
 
     if (onStatus) onStatus('Generating your assignment...');

@@ -13,7 +13,8 @@ import { HANDWRITING_STYLES, PAGE_TYPES, PAGE_TEMPLATES } from './utils/variatio
 import { parseText, paginateContent } from './utils/paginationEngine.js';
 import { renderAllPages } from './utils/handwritingRenderer.js';
 import { exportToPDF } from './utils/pdfExporter.js';
-import { generateAssignment } from './utils/aiContentGenerator.js';
+import { generateAssignment, setOllamaBase, getOllamaBase } from './utils/aiContentGenerator.js';
+import { HistoryManager } from './utils/historyManager.js';
 
 export default function App() {
     // Content state
@@ -39,10 +40,15 @@ export default function App() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isAiGenerating, setIsAiGenerating] = useState(false);
     const [aiStatus, setAiStatus] = useState('');
+    const [ollamaUrl, setOllamaUrl] = useState(() => {
+        const settings = HistoryManager.loadSettings();
+        return settings.ollamaUrl || getOllamaBase();
+    });
 
     // UI state
     const [theme, setTheme] = useState(() => localStorage.getItem('hw-theme') || 'light');
     const [helpOpen, setHelpOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [history, setHistory] = useState(() => {
         try { return JSON.parse(localStorage.getItem('hw-history') || '[]'); } catch { return []; }
@@ -52,6 +58,29 @@ export default function App() {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('hw-theme', theme);
     }, [theme]);
+
+    // Initialize AI Base and Persistence
+    useEffect(() => {
+        setOllamaBase(ollamaUrl);
+        HistoryManager.saveSettings({ ollamaUrl });
+    }, [ollamaUrl]);
+
+    // Load Draft on mount
+    useEffect(() => {
+        const saved = HistoryManager.loadDraft();
+        if (saved) {
+            setText(saved.text || '');
+            if (saved.header) setHeader(saved.header);
+        }
+    }, []);
+
+    // Auto-save draft
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            HistoryManager.saveDraft({ text, header });
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [text, header]);
 
     const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
 
@@ -214,6 +243,9 @@ export default function App() {
                     <button className="header-btn" onClick={() => setHistoryOpen(!historyOpen)} title="Generation history">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                     </button>
+                    <button className="header-btn" onClick={() => setSettingsOpen(true)} title="AI Settings">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                    </button>
                     <button className="header-btn" onClick={() => setHelpOpen(true)} title="Help & shortcuts">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
                     </button>
@@ -250,6 +282,35 @@ export default function App() {
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* AI Settings Modal */}
+            {settingsOpen && (
+                <div className="modal-overlay fade-in" onClick={() => setSettingsOpen(false)}>
+                    <div className="modal-content glass" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>AI Connectivity Settings</h2>
+                            <button className="modal-close" onClick={() => setSettingsOpen(false)}>&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <p className="settings-hint">To use AI from your phone, enter your computer's IP address (e.g., http://192.168.1.5:11434).</p>
+                            <div className="field-group">
+                                <label className="field-label">Ollama Endpoint URL</label>
+                                <input
+                                    type="text"
+                                    className="field-input"
+                                    value={ollamaUrl}
+                                    onChange={e => setOllamaUrl(e.target.value)}
+                                    placeholder="http://localhost:11434"
+                                />
+                            </div>
+                            <div className="settings-actions">
+                                <button className="btn-primary" onClick={() => setSettingsOpen(false)}>Save Settings</button>
+                                <button className="btn-ghost" onClick={() => { setOllamaUrl('http://localhost:11434'); }}>Reset to Local</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
