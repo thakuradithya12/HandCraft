@@ -304,6 +304,11 @@ export default function App() {
                                     onChange={e => setOllamaUrl(e.target.value)}
                                     placeholder="http://localhost:11434"
                                 />
+                                <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                                    <button className="btn-ghost btn-sm" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={() => setOllamaUrl('http://192.168.1.71:11434')}>
+                                        Use PC IP (192.168.1.71)
+                                    </button>
+                                </div>
                             </div>
                             <div className="settings-actions">
                                 <button className="btn-primary" onClick={() => setSettingsOpen(false)}>Save Settings</button>
@@ -334,12 +339,19 @@ export default function App() {
                                 </div>
                                 <div className="setup-step">
                                     <div className="step-num">3</div>
-                                    <div className="step-text"><b>Using Phone?</b> Enter your PC's IP in AI Settings (e.g., http://192.168.1.5:11434).</div>
+                                    <div className="step-text"><b>Using Phone?</b> Set IP to <code>http://192.168.1.71:11434</code> in AI Settings.</div>
                                 </div>
                             </div>
                             <div className="setup-actions">
-                                <button className="btn-primary" onClick={() => { setShowSetupGuide(false); setSettingsOpen(true); }}>Configure AI</button>
-                                <button className="btn-secondary" onClick={() => { setShowSetupGuide(false); handleAiGenerate('5 page assignment on Modern Technology', true); }}>Try Mock Demo</button>
+                                <button className="btn-primary" onClick={() => {
+                                    setOllamaUrl('http://192.168.1.71:11434');
+                                    showToast('Switched to PC AI (192.168.1.71)', 'success');
+                                    setShowSetupGuide(false);
+                                }}>Connect to My PC (192.168.1.71)</button>
+                                <button className="btn-secondary" onClick={() => { setShowSetupGuide(false); setSettingsOpen(true); }}>Manual Config</button>
+                            </div>
+                            <div className="setup-footer" style={{ marginTop: '16px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
+                                <button className="btn-ghost" onClick={() => { setShowSetupGuide(false); handleAiGenerate('5 page assignment on Modern Technology', true); }}>Try Mock Demo Instead</button>
                             </div>
                         </div>
                     </div>

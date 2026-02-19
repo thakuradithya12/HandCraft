@@ -10,7 +10,10 @@ let OLLAMA_BASE = 'http://localhost:11434';
  */
 export function setOllamaBase(url) {
     if (!url) return;
-    OLLAMA_BASE = url.endsWith('/') ? url.slice(0, -1) : url;
+    let finalUrl = url.trim();
+    if (!finalUrl.startsWith('http')) finalUrl = `http://${finalUrl}`;
+    if (!finalUrl.includes(':')) finalUrl = `${finalUrl}:11434`;
+    OLLAMA_BASE = finalUrl.endsWith('/') ? finalUrl.slice(0, -1) : finalUrl;
 }
 
 export function getOllamaBase() {
