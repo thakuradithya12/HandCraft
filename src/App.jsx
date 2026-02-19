@@ -89,11 +89,7 @@ export default function App() {
         }, 100);
     };
 
-    // Initialize AI Base and Persistence
-    useEffect(() => {
-        setOllamaBase(ollamaUrl);
-        HistoryManager.saveSettings({ ollamaUrl });
-    }, [ollamaUrl]);
+
 
     // Load Draft on mount
     useEffect(() => {
