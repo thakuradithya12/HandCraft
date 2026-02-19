@@ -164,9 +164,49 @@ export async function generateContent(userPrompt, onProgress = null) {
 }
 
 /**
+ * Mock content for demonstration when Ollama is unavailable.
+ */
+function getMockContent(topic) {
+    return `# Assignment: ${topic || 'Advanced Computing Concepts'}
+
+## Introduction
+The field of ${topic || 'computing'} has evolved rapidly over the last several decades, transforming from niche academic interests into the very backbone of modern global infrastructure. Understanding the core principles of ${topic || 'this subject'} is essential for any professional looking to navigate the complexities of today's technological landscape.
+
+[DIAGRAM: flowchart | Evolution Process | Research -> Development -> Testing -> Deployment -> Optimization]
+
+## Core Methodologies
+When examining ${topic || 'these concepts'}, we must consider the various methodologies used by practitioners to ensure efficiency and reliability. These approaches provide a structured framework for solving problems and implementing solutions at scale. Historically, these methodologies have shifted from rigid, sequential processes to more fluid and adaptive systems.
+
+[DIAGRAM: table | Comparison of Approaches | Headers: Approach, Efficiency, Scalability; Row1: Traditional, Medium, Low; Row2: Modern, High, High; Row3: AI-Driven, Ultra, Dynamic]
+
+## Emerging Trends
+Recent advancements have introduced novel ways of interacting with ${topic || 'information systems'}. The integration of artificial intelligence and machine learning is not just a trend but a paradigm shift that affects every layer of the stack, from low-level data processing to high-level decision making.
+
+[DIAGRAM: labeled | System Architecture | Components: Frontend, API Layer, Database, AI Engine, Monitoring]
+
+## Conclusion
+In conclusion, the study of ${topic || 'this topic'} is a continuous journey of learning and adaptation. As technologies emerge and mature, our understanding and methodologies must also evolve to keep pace. The future holds immense promise for further innovation and integration across all domains.`;
+}
+
+/**
  * Generate content with a friendly conversational wrapper.
  */
-export async function generateAssignment(prompt, onProgress = null, onStatus = null) {
+export async function generateAssignment(prompt, onProgress = null, onStatus = null, useMock = false) {
+    if (useMock) {
+        if (onStatus) onStatus('Generating Demo content...');
+        const { topic } = parsePrompt(prompt);
+        const content = getMockContent(topic);
+
+        // Simulate streaming
+        for (let i = 1; i <= content.length; i += 15) {
+            if (onProgress) onProgress(content.slice(0, i));
+            await new Promise(r => setTimeout(r, 10));
+        }
+
+        if (onStatus) onStatus('Demo Done!');
+        return content;
+    }
+
     if (onStatus) onStatus('Connecting to Ollama...');
 
     const status = await checkOllamaStatus();

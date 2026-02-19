@@ -314,29 +314,139 @@ export default function App() {
                 </div>
             )}
 
-            {/* Landing Hero */}
-            {!text && !isGenerating && (
-                <div className="landing-hero fade-in">
-                    <div className="hero-content stagger-in">
-                        <div className="hero-badge">✨ New: AI Diagrams Supported</div>
-                        <h1>Transform your digital text into <span className="text-gradient">authentic handwriting.</span></h1>
-                        <p>The ultimate professional tool for students and educators. Convert assignments, letters, and notes into realistic handwritten pages in seconds.</p>
-                        <div className="hero-actions">
-                            <button className="btn-primary hero-btn" onClick={() => {
-                                setText('Hello! Start by typing your assignment here. \n\nYou can also use the AI helper to generate content for you!');
-                                setTimeout(() => {
-                                    document.querySelector('.text-area')?.focus();
-                                    document.querySelector('.controls-panel')?.scrollIntoView({ behavior: 'smooth' });
-                                }, 100);
-                            }}>Get Started Free</button>
-                            <button className="btn-secondary hero-btn" onClick={() => setHelpOpen(true)}>How it Works</button>
+            {/* AI Setup Guide Modal */}
+            {showSetupGuide && (
+                <div className="modal-overlay fade-in" onClick={() => setShowSetupGuide(false)}>
+                    <div className="modal-content glass setup-guide" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>AI Setup Guide 🛠️</h2>
+                            <button className="modal-close" onClick={() => setShowSetupGuide(false)}>&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="setup-steps">
+                                <div className="setup-step">
+                                    <div className="step-num">1</div>
+                                    <div className="step-text">Install <b>Ollama</b> on your PC from <a href="https://ollama.com" target="_blank" rel="noreferrer">ollama.com</a></div>
+                                </div>
+                                <div className="setup-step">
+                                    <div className="step-num">2</div>
+                                    <div className="step-text">Run <code>ollama run llama3</code> in your terminal.</div>
+                                </div>
+                                <div className="setup-step">
+                                    <div className="step-num">3</div>
+                                    <div className="step-text"><b>Using Phone?</b> Enter your PC's IP in AI Settings (e.g., http://192.168.1.5:11434).</div>
+                                </div>
+                            </div>
+                            <div className="setup-actions">
+                                <button className="btn-primary" onClick={() => { setShowSetupGuide(false); setSettingsOpen(true); }}>Configure AI</button>
+                                <button className="btn-secondary" onClick={() => { setShowSetupGuide(false); handleAiGenerate('5 page assignment on Modern Technology', true); }}>Try Mock Demo</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Main Content */}
-            <div className={`app-main ${!text && !isGenerating ? 'dimmed' : ''}`}>
+            {/* SaaS Landing Page */}
+            {!isAppStarted && (
+                <div className="saas-landing fade-in">
+                    <nav className="landing-nav">
+                        <div className="nav-logo">HandCraft</div>
+                        <div className="nav-links">
+                            <a href="#features">Features</a>
+                            <a href="#pricing">Pricing</a>
+                            <button className="btn-primary nav-btn" onClick={startApp}>Launch App</button>
+                        </div>
+                    </nav>
+
+                    <header className="landing-hero-saas">
+                        <div className="hero-badge">✨ Now with AI Diagrams</div>
+                        <h1>The Future of <span className="text-gradient">Handwritten Assignments</span></h1>
+                        <p>Join 10,000+ students using HandCraft to generate authentic, high-quality handwritten pages with a single click. AI-powered and print-ready.</p>
+                        <div className="hero-actions-saas">
+                            <button className="btn-primary hero-btn-lg" onClick={startApp}>Open Editor — It's Free</button>
+                            <button className="btn-secondary hero-btn-lg" onClick={() => handleAiGenerate('5 page assignment on Data Science', true)}>Try Instant Demo</button>
+                        </div>
+                        <div className="hero-preview-scroll">
+                            <span className="scroll-hint">Scroll to explore</span>
+                            <div className="scroll-arrow">↓</div>
+                        </div>
+                    </header>
+
+                    <section id="features" className="landing-section">
+                        <div className="section-header">
+                            <h2>Powerful Features</h2>
+                            <p>Everything you need for the perfect assignment.</p>
+                        </div>
+                        <div className="features-grid">
+                            <div className="feat-card">
+                                <div className="feat-icon">✍️</div>
+                                <h3>Authentic Hand</h3>
+                                <p>Natural variations in every character, mimicking real human pencil-work.</p>
+                            </div>
+                            <div className="feat-card">
+                                <div className="feat-icon">📊</div>
+                                <h3>AI Diagrams</h3>
+                                <p>Generate flowcharts, tables, and trees in a hand-drawn sketchy style.</p>
+                            </div>
+                            <div className="feat-card">
+                                <div className="feat-icon">🧠</div>
+                                <h3>AI Content</h3>
+                                <p>Powered by local LLMs to write detailed, structured academic content.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="pricing" className="landing-section bg-alt">
+                        <div className="section-header">
+                            <h2>Flexible Pricing</h2>
+                            <p>Choose the plan that fits your academic needs.</p>
+                        </div>
+                        <div className="pricing-grid">
+                            <div className="price-card">
+                                <div className="price-tag">Free</div>
+                                <div className="price-val">$0<span>/mo</span></div>
+                                <ul className="price-list">
+                                    <li>Standard Handwriting</li>
+                                    <li>Standard Paper Types</li>
+                                    <li>Unlimited Local Drafts</li>
+                                    <li>Native Browser Print</li>
+                                </ul>
+                                <button className="btn-secondary" onClick={startApp}>Current Plan</button>
+                            </div>
+                            <div className="price-card featured">
+                                <div className="price-tag">Pro</div>
+                                <div className="price-val">$5<span>/mo</span></div>
+                                <ul className="price-list">
+                                    <li>Premium "Vintage" Styles</li>
+                                    <li>Advanced AI Diagrams</li>
+                                    <li>Priority AI Speed</li>
+                                    <li>Cloud Sync (Coming Soon)</li>
+                                </ul>
+                                <button className="btn-primary" onClick={() => showToast('Payments integration coming soon!', 'info')}>Upgrade to Pro</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="landing-section">
+                        <div className="section-header">
+                            <h2>Frequently Asked</h2>
+                        </div>
+                        <div className="faq-list">
+                            <div className="faq-item">
+                                <h4>Is it really handwritten?</h4>
+                                <p>Yes! We use an advanced variation engine to ensure no two characters or lines look identical.</p>
+                            </div>
+                            <div className="faq-item">
+                                <h4>Can I use it on mobile?</h4>
+                                <p>Absolutely. The site is fully responsive and supports remote AI connections from your phone.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            )}
+
+            {/* Main Editor Content */}
+            <div className={`app-main ${!isAppStarted ? 'hidden' : ''}`}>
                 <aside className="controls-panel">
                     <TextInput
                         text={text}
@@ -395,7 +505,7 @@ export default function App() {
 
             <footer className="professional-footer">
                 <div className="footer-left">
-                    <span className="footer-tag">HandCraft v2.5</span>
+                    <span className="footer-tag">HandCraft v2.6</span>
                     <span className="footer-dot">•</span>
                     <span>Ready for Professional Use</span>
                 </div>
