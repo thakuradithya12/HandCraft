@@ -5,8 +5,42 @@
 
 let OLLAMA_BASE = 'http://localhost:11434';
 
+// Fallback to Vercel API if in Cloud Mode
+let IS_CLOUD_MODE = false;
+let CLOUD_API_KEY = null;
+
 /**
- * Update the Ollama base URL (e.g., from user settings).
+ * Update the AI Configuration (Local or Cloud).
+ */
+export function setAIConfig(config) {
+    if (config.mode === 'cloud') {
+        IS_CLOUD_MODE = true;
+        CLOUD_API_KEY = config.apiKey || null;
+    } else {
+        IS_CLOUD_MODE = false;
+        if (config.url) {
+            let finalUrl = config.url.trim();
+            if (!finalUrl.startsWith('http')) finalUrl = `http://${finalUrl}`;
+            if (!finalUrl.includes(':')) finalUrl = `${finalUrl}:11434`;
+            OLLAMA_BASE = finalUrl.endsWith('/') ? finalUrl.slice(0, -1) : finalUrl;
+        }
+    }
+}
+
+export function getAIConfig() {
+    return {
+        mode: IS_CLOUD_MODE ? 'cloud' : 'local',
+        url: OLLAMA_BASE,
+        apiKey: CLOUD_API_KEY
+    };
+}
+
+export function getOllamaBase() {
+    return OLLAMA_BASE;
+}
+
+/**
+ * Update the Ollama base URL (legacy support).
  */
 export function setOllamaBase(url) {
     if (!url) return;
@@ -16,8 +50,23 @@ export function setOllamaBase(url) {
     OLLAMA_BASE = finalUrl.endsWith('/') ? finalUrl.slice(0, -1) : finalUrl;
 }
 
-export function getOllamaBase() {
-    return OLLAMA_BASE;
+async function callCloudAI(prompt, onStream) {
+    if (!CLOUD_API_KEY) throw new Error("Missing Google API Key. Please add it in Settings.");
+
+    const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, apiKey: CLOUD_API_KEY })
+    });
+
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to connect to Cloud AI.');
+    }
+
+    const data = await response.json();
+    if (onStream) onStream(data.content); // Cloud is currently one-shot, but simulate stream callback
+    return data.content;
 }
 
 /**
@@ -194,6 +243,10 @@ In conclusion, the study of ${topic || 'this topic'} is a continuous journey of 
 /**
  * Generate content with a friendly conversational wrapper.
  */
+
+/**
+ * Generate content with a friendly conversational wrapper.
+ */
 export async function generateAssignment(prompt, onProgress = null, onStatus = null, useMock = false) {
     if (useMock) {
         if (onStatus) onStatus('Generating Demo content...');
@@ -210,7 +263,18 @@ export async function generateAssignment(prompt, onProgress = null, onStatus = n
         return content;
     }
 
-    if (onStatus) onStatus('Connecting to Ollama...');
+    if (IS_CLOUD_MODE) {
+        if (onStatus) onStatus('Contacting Cloud AI (Gemini)...');
+        try {
+            const content = await callCloudAI(prompt, onProgress);
+            if (onStatus) onStatus('Done!');
+            return content;
+        } catch (err) {
+            throw new Error(`Cloud AI Error: ${err.message}`);
+        }
+    }
+
+    if (onStatus) onStatus('Connecting to Local Ollama...');
 
     const status = await checkOllamaStatus();
     if (!status.available) {

@@ -13,7 +13,7 @@ import { HANDWRITING_STYLES, PAGE_TYPES, PAGE_TEMPLATES } from './utils/variatio
 import { parseText, paginateContent } from './utils/paginationEngine.js';
 import { renderAllPages } from './utils/handwritingRenderer.js';
 import { exportToPDF } from './utils/pdfExporter.js';
-import { generateAssignment, setOllamaBase, getOllamaBase } from './utils/aiContentGenerator.js';
+import { generateAssignment, setOllamaBase, getOllamaBase, setAIConfig, getAIConfig } from './utils/aiContentGenerator.js';
 import { HistoryManager } from './utils/historyManager.js';
 
 export default function App() {
@@ -40,10 +40,24 @@ export default function App() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isAiGenerating, setIsAiGenerating] = useState(false);
     const [aiStatus, setAiStatus] = useState('');
-    const [ollamaUrl, setOllamaUrl] = useState(() => {
+    const [aiConfig, setAiConfig] = useState(() => {
         const settings = HistoryManager.loadSettings();
-        return settings.ollamaUrl || getOllamaBase();
+        return {
+            mode: settings.mode || 'local', // 'local' | 'cloud'
+            url: settings.ollamaUrl || getOllamaBase(),
+            apiKey: settings.apiKey || ''
+        };
     });
+
+    // Sync config with utils
+    useEffect(() => {
+        setAIConfig(aiConfig);
+        HistoryManager.saveSettings({
+            mode: aiConfig.mode,
+            ollamaUrl: aiConfig.url,
+            apiKey: aiConfig.apiKey
+        });
+    }, [aiConfig]);
 
     // UI state
     const [theme, setTheme] = useState(() => localStorage.getItem('hw-theme') || 'light');
@@ -312,168 +326,205 @@ export default function App() {
                             <button className="modal-close" onClick={() => setSettingsOpen(false)}>&times;</button>
                         </div>
                         <div className="modal-body">
-                            <p className="settings-hint">To use AI from your phone, enter your computer's IP address (e.g., http://192.168.1.5:11434).</p>
-                            <div className="field-group">
-                                <label className="field-label">Ollama Endpoint URL</label>
-                                <input
-                                    type="text"
-                                    className="field-input"
-                                    value={ollamaUrl}
-                                    onChange={e => setOllamaUrl(e.target.value)}
-                                    placeholder="http://localhost:11434"
-                                />
-                                <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                                    <button className="btn-ghost btn-sm" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={() => setOllamaUrl('http://192.168.1.71:11434')}>
-                                        Use PC IP (192.168.1.71)
-                                    </button>
+                            <p className="settings-hint">Choose your AI provider. Use <b>Cloud AI</b> (Gemini) for instant results without installing anything.</p>
+
+                            <div className="toggle-group" style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'var(--bg-input)', padding: '4px', borderRadius: '8px' }}>
+                                <button
+                                    className={`btn-toggle ${aiConfig.mode === 'local' ? 'active' : ''}`}
+                                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', background: aiConfig.mode === 'local' ? 'var(--bg-panel)' : 'transparent', color: aiConfig.mode === 'local' ? 'var(--text)' : 'var(--text-muted)', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onClick={() => setAiConfig(c => ({ ...c, mode: 'local' }))}
+                                >
+                                    Local (Ollama)
+                                </button>
+                                <button
+                                    className={`btn-toggle ${aiConfig.mode === 'cloud' ? 'active' : ''}`}
+                                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', background: aiConfig.mode === 'cloud' ? 'var(--bg-panel)' : 'transparent', color: aiConfig.mode === 'cloud' ? 'var(--accent)' : 'var(--text-muted)', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onClick={() => setAiConfig(c => ({ ...c, mode: 'cloud' }))}
+                                >
+                                    Cloud AI (Gemini)
+                                </button>
+                            </div>
+
+                            {aiConfig.mode === 'local' ? (
+                                <div className="field-group fade-in">
+                                    <label className="field-label">Ollama Endpoint URL</label>
+                                    <input
+                                        type="text"
+                                        className="field-input"
+                                        value={aiConfig.url}
+                                        onChange={e => setAiConfig(c => ({ ...c, url: e.target.value }))}
+                                        placeholder="http://localhost:11434"
+                                    />
+                                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                                        <button className="btn-ghost btn-sm" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={() => setAiConfig(c => ({ ...c, url: 'http://192.168.1.71:11434' }))}>
+                                            Use PC IP (192.168.1.71)
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="settings-actions">
-                                <button className="btn-primary" onClick={() => setSettingsOpen(false)}>Save Settings</button>
-                                <button className="btn-ghost" onClick={() => { setOllamaUrl('http://localhost:11434'); }}>Reset to Local</button>
-                            </div>
+                            ) : (
+                                <div className="field-group fade-in">
+                                    <label className="field-label">Google Gemini API Key (Free)</label>
+                                    <input
+                                        type="password"
+                                        className="field-input"
+                                        value={aiConfig.apiKey}
+                                        onChange={e => setAiConfig(c => ({ ...c, apiKey: e.target.value }))}
+                                        placeholder="Paste your API Key here..."
+                                    />
+                                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                        Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>Google AI Studio</a>.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="settings-actions">
+                            <button className="btn-primary" onClick={() => setSettingsOpen(false)}>Save Settings</button>
                         </div>
                     </div>
                 </div>
             )}
 
             {/* AI Setup Guide Modal */}
-            {showSetupGuide && (
-                <div className="modal-overlay fade-in" onClick={() => setShowSetupGuide(false)}>
-                    <div className="modal-content glass setup-guide" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2>AI Setup Guide 🛠️</h2>
-                            <button className="modal-close" onClick={() => setShowSetupGuide(false)}>&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="setup-steps">
-                                <div className="setup-step">
-                                    <div className="step-num">1</div>
-                                    <div className="step-text">Install <b>Ollama</b> on your PC from <a href="https://ollama.com" target="_blank" rel="noreferrer">ollama.com</a></div>
-                                </div>
-                                <div className="setup-step">
-                                    <div className="step-num">2</div>
-                                    <div className="step-text">Run <code>ollama run llama3</code> in your terminal.</div>
-                                </div>
-                                <div className="setup-step">
-                                    <div className="step-num">3</div>
-                                    <div className="step-text"><b>Using Phone?</b> Set IP to <code>http://192.168.1.71:11434</code> in AI Settings.</div>
-                                </div>
+            {
+                showSetupGuide && (
+                    <div className="modal-overlay fade-in" onClick={() => setShowSetupGuide(false)}>
+                        <div className="modal-content glass setup-guide" onClick={e => e.stopPropagation()}>
+                            <div className="modal-header">
+                                <h2>AI Setup Guide 🛠️</h2>
+                                <button className="modal-close" onClick={() => setShowSetupGuide(false)}>&times;</button>
                             </div>
-                            <div className="setup-actions">
-                                <button className="btn-primary" onClick={() => {
-                                    setOllamaUrl('http://192.168.1.71:11434');
-                                    showToast('Switched to PC AI (192.168.1.71)', 'success');
-                                    setShowSetupGuide(false);
-                                }}>Connect to My PC (192.168.1.71)</button>
-                                <button className="btn-secondary" onClick={() => { setShowSetupGuide(false); setSettingsOpen(true); }}>Manual Config</button>
-                            </div>
-                            <div className="setup-footer" style={{ marginTop: '16px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
-                                <button className="btn-ghost" onClick={() => { setShowSetupGuide(false); handleAiGenerate('5 page assignment on Modern Technology', true); }}>Try Mock Demo Instead</button>
+                            <div className="modal-body">
+                                <div className="setup-steps">
+                                    <div className="setup-step">
+                                        <div className="step-num">1</div>
+                                        <div className="step-text">Install <b>Ollama</b> on your PC from <a href="https://ollama.com" target="_blank" rel="noreferrer">ollama.com</a></div>
+                                    </div>
+                                    <div className="setup-step">
+                                        <div className="step-num">2</div>
+                                        <div className="step-text">Run <code>ollama run llama3</code> in your terminal.</div>
+                                    </div>
+                                    <div className="setup-step">
+                                        <div className="step-num">3</div>
+                                        <div className="step-text"><b>Using Phone?</b> Set IP to <code>http://192.168.1.71:11434</code> in AI Settings.</div>
+                                    </div>
+                                </div>
+                                <div className="setup-actions">
+                                    <button className="btn-primary" onClick={() => {
+                                        setOllamaUrl('http://192.168.1.71:11434');
+                                        showToast('Switched to PC AI (192.168.1.71)', 'success');
+                                        setShowSetupGuide(false);
+                                    }}>Connect to My PC (192.168.1.71)</button>
+                                    <button className="btn-secondary" onClick={() => { setShowSetupGuide(false); setSettingsOpen(true); }}>Manual Config</button>
+                                </div>
+                                <div className="setup-footer" style={{ marginTop: '16px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
+                                    <button className="btn-ghost" onClick={() => { setShowSetupGuide(false); handleAiGenerate('5 page assignment on Modern Technology', true); }}>Try Mock Demo Instead</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* SaaS Landing Page */}
-            {!isAppStarted && (
-                <div className="saas-landing fade-in">
-                    <nav className="landing-nav">
-                        <div className="nav-logo">HandCraft</div>
-                        <div className="nav-links">
-                            <a href="#features">Features</a>
-                            <a href="#pricing">Pricing</a>
-                            <button className="btn-primary nav-btn" onClick={startApp}>Launch App</button>
-                        </div>
-                    </nav>
+            {
+                !isAppStarted && (
+                    <div className="saas-landing fade-in">
+                        <nav className="landing-nav">
+                            <div className="nav-logo">HandCraft</div>
+                            <div className="nav-links">
+                                <a href="#features">Features</a>
+                                <a href="#pricing">Pricing</a>
+                                <button className="btn-primary nav-btn" onClick={startApp}>Launch App</button>
+                            </div>
+                        </nav>
 
-                    <header className="landing-hero-saas">
-                        <div className="hero-badge">✨ Now with AI Diagrams</div>
-                        <h1>The Future of <span className="text-gradient">Handwritten Assignments</span></h1>
-                        <p>Join 10,000+ students using HandCraft to generate authentic, high-quality handwritten pages with a single click. AI-powered and print-ready.</p>
-                        <div className="hero-actions-saas">
-                            <button className="btn-primary hero-btn-lg" onClick={startApp}>Open Editor — It's Free</button>
-                            <button className="btn-secondary hero-btn-lg" onClick={() => handleAiGenerate('5 page assignment on Data Science', true)}>Try Instant Demo</button>
-                        </div>
-                        <div className="hero-preview-scroll">
-                            <span className="scroll-hint">Scroll to explore</span>
-                            <div className="scroll-arrow">↓</div>
-                        </div>
-                    </header>
+                        <header className="landing-hero-saas">
+                            <div className="hero-badge">✨ Now with AI Diagrams</div>
+                            <h1>The Future of <span className="text-gradient">Handwritten Assignments</span></h1>
+                            <p>Join 10,000+ students using HandCraft to generate authentic, high-quality handwritten pages with a single click. AI-powered and print-ready.</p>
+                            <div className="hero-actions-saas">
+                                <button className="btn-primary hero-btn-lg" onClick={startApp}>Open Editor — It's Free</button>
+                                <button className="btn-secondary hero-btn-lg" onClick={() => handleAiGenerate('5 page assignment on Data Science', true)}>Try Instant Demo</button>
+                            </div>
+                            <div className="hero-preview-scroll">
+                                <span className="scroll-hint">Scroll to explore</span>
+                                <div className="scroll-arrow">↓</div>
+                            </div>
+                        </header>
 
-                    <section id="features" className="landing-section">
-                        <div className="section-header">
-                            <h2>Powerful Features</h2>
-                            <p>Everything you need for the perfect assignment.</p>
-                        </div>
-                        <div className="features-grid">
-                            <div className="feat-card">
-                                <div className="feat-icon">✍️</div>
-                                <h3>Authentic Hand</h3>
-                                <p>Natural variations in every character, mimicking real human pencil-work.</p>
+                        <section id="features" className="landing-section">
+                            <div className="section-header">
+                                <h2>Powerful Features</h2>
+                                <p>Everything you need for the perfect assignment.</p>
                             </div>
-                            <div className="feat-card">
-                                <div className="feat-icon">📊</div>
-                                <h3>AI Diagrams</h3>
-                                <p>Generate flowcharts, tables, and trees in a hand-drawn sketchy style.</p>
+                            <div className="features-grid">
+                                <div className="feat-card">
+                                    <div className="feat-icon">✍️</div>
+                                    <h3>Authentic Hand</h3>
+                                    <p>Natural variations in every character, mimicking real human pencil-work.</p>
+                                </div>
+                                <div className="feat-card">
+                                    <div className="feat-icon">📊</div>
+                                    <h3>AI Diagrams</h3>
+                                    <p>Generate flowcharts, tables, and trees in a hand-drawn sketchy style.</p>
+                                </div>
+                                <div className="feat-card">
+                                    <div className="feat-icon">🧠</div>
+                                    <h3>AI Content</h3>
+                                    <p>Powered by local LLMs to write detailed, structured academic content.</p>
+                                </div>
                             </div>
-                            <div className="feat-card">
-                                <div className="feat-icon">🧠</div>
-                                <h3>AI Content</h3>
-                                <p>Powered by local LLMs to write detailed, structured academic content.</p>
-                            </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    <section id="pricing" className="landing-section bg-alt">
-                        <div className="section-header">
-                            <h2>Flexible Pricing</h2>
-                            <p>Choose the plan that fits your academic needs.</p>
-                        </div>
-                        <div className="pricing-grid">
-                            <div className="price-card">
-                                <div className="price-tag">Free</div>
-                                <div className="price-val">$0<span>/mo</span></div>
-                                <ul className="price-list">
-                                    <li>Standard Handwriting</li>
-                                    <li>Standard Paper Types</li>
-                                    <li>Unlimited Local Drafts</li>
-                                    <li>Native Browser Print</li>
-                                </ul>
-                                <button className="btn-secondary" onClick={startApp}>Current Plan</button>
+                        <section id="pricing" className="landing-section bg-alt">
+                            <div className="section-header">
+                                <h2>Flexible Pricing</h2>
+                                <p>Choose the plan that fits your academic needs.</p>
                             </div>
-                            <div className="price-card featured">
-                                <div className="price-tag">Pro</div>
-                                <div className="price-val">$5<span>/mo</span></div>
-                                <ul className="price-list">
-                                    <li>Premium "Vintage" Styles</li>
-                                    <li>Advanced AI Diagrams</li>
-                                    <li>Priority AI Speed</li>
-                                    <li>Cloud Sync (Coming Soon)</li>
-                                </ul>
-                                <button className="btn-primary" onClick={() => showToast('Payments integration coming soon!', 'info')}>Upgrade to Pro</button>
+                            <div className="pricing-grid">
+                                <div className="price-card">
+                                    <div className="price-tag">Free</div>
+                                    <div className="price-val">$0<span>/mo</span></div>
+                                    <ul className="price-list">
+                                        <li>Standard Handwriting</li>
+                                        <li>Standard Paper Types</li>
+                                        <li>Unlimited Local Drafts</li>
+                                        <li>Native Browser Print</li>
+                                    </ul>
+                                    <button className="btn-secondary" onClick={startApp}>Current Plan</button>
+                                </div>
+                                <div className="price-card featured">
+                                    <div className="price-tag">Pro</div>
+                                    <div className="price-val">$5<span>/mo</span></div>
+                                    <ul className="price-list">
+                                        <li>Premium "Vintage" Styles</li>
+                                        <li>Advanced AI Diagrams</li>
+                                        <li>Priority AI Speed</li>
+                                        <li>Cloud Sync (Coming Soon)</li>
+                                    </ul>
+                                    <button className="btn-primary" onClick={() => showToast('Payments integration coming soon!', 'info')}>Upgrade to Pro</button>
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    <section className="landing-section">
-                        <div className="section-header">
-                            <h2>Frequently Asked</h2>
-                        </div>
-                        <div className="faq-list">
-                            <div className="faq-item">
-                                <h4>Is it really handwritten?</h4>
-                                <p>Yes! We use an advanced variation engine to ensure no two characters or lines look identical.</p>
+                        <section className="landing-section">
+                            <div className="section-header">
+                                <h2>Frequently Asked</h2>
                             </div>
-                            <div className="faq-item">
-                                <h4>Can I use it on mobile?</h4>
-                                <p>Absolutely. The site is fully responsive and supports remote AI connections from your phone.</p>
+                            <div className="faq-list">
+                                <div className="faq-item">
+                                    <h4>Is it really handwritten?</h4>
+                                    <p>Yes! We use an advanced variation engine to ensure no two characters or lines look identical.</p>
+                                </div>
+                                <div className="faq-item">
+                                    <h4>Can I use it on mobile?</h4>
+                                    <p>Absolutely. The site is fully responsive and supports remote AI connections from your phone.</p>
+                                </div>
                             </div>
-                        </div>
-                    </section>
-                </div>
-            )}
+                        </section>
+                    </div>
+                )
+            }
 
             {/* Main Editor Content */}
             <div className={`app-main ${!isAppStarted ? 'hidden' : ''}`}>
@@ -547,6 +598,6 @@ export default function App() {
                     </a>
                 </div>
             </footer>
-        </div>
+        </div >
     );
 }
