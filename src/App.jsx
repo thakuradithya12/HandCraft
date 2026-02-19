@@ -54,10 +54,26 @@ export default function App() {
         try { return JSON.parse(localStorage.getItem('hw-history') || '[]'); } catch { return []; }
     });
 
+    // SaaS specific state
+    const [isAppStarted, setIsAppStarted] = useState(() => !!localStorage.getItem('hw-text'));
+    const [showSetupGuide, setShowSetupGuide] = useState(false);
+
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('hw-theme', theme);
     }, [theme]);
+
+    const startApp = () => {
+        setIsAppStarted(true);
+        if (!text) {
+            setText('Hello! Start by typing your assignment here. \n\nYou can also use the AI helper to generate content for you!');
+        }
+        setTimeout(() => {
+            const editor = document.querySelector('.text-area') || document.querySelector('.controls-panel');
+            editor?.scrollIntoView({ behavior: 'smooth' });
+            document.querySelector('.text-area')?.focus();
+        }, 100);
+    };
 
     // Initialize AI Base and Persistence
     useEffect(() => {
@@ -85,9 +101,9 @@ export default function App() {
     const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
 
     // AI Content Generation
-    const handleAiGenerate = useCallback(async (prompt) => {
+    const handleAiGenerate = useCallback(async (prompt, useMock = false) => {
         setIsAiGenerating(true);
-        setAiStatus('Connecting to Ollama...');
+        setAiStatus(useMock ? 'Generating Demo...' : 'Connecting to Ollama...');
 
         try {
             const content = await generateAssignment(
@@ -96,7 +112,8 @@ export default function App() {
                     setText(partialText);
                     setAiStatus(`Generating... (${partialText.split(/\s+/).length} words)`);
                 },
-                (status) => setAiStatus(status)
+                (status) => setAiStatus(status),
+                useMock
             );
 
             if (!content || !content.trim()) {
@@ -106,10 +123,10 @@ export default function App() {
             setText(content);
             setAiStatus('Content generated! Click "Generate Pages" to render.');
             showToast('Assignment content generated! Now click Generate Pages.', 'success');
+            setIsAppStarted(true);
 
             // Auto-fill header title from prompt if empty
             if (!header.title) {
-                // improved regex to catch more patterns
                 const topicMatch = prompt.match(/(?:on|about|topic:|title:)\s+([^.]+)/i);
                 if (topicMatch) {
                     let newTitle = topicMatch[1].trim();
@@ -121,6 +138,7 @@ export default function App() {
             console.error('AI generation error:', err);
             setAiStatus('');
             showToast(`AI Error: ${err.message}`, 'error');
+            if (!useMock) setShowSetupGuide(true);
         } finally {
             setIsAiGenerating(false);
         }
