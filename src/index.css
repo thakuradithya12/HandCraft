@@ -1,4 +1,4 @@
-/* ===== HandCraft — Clean, Futuristic, Calm Design System ===== */
+﻿/* ===== HandCraft â€” Clean, Futuristic, Calm Design System ===== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -2334,4 +2334,333 @@ body {
     width: 100%;
     justify-content: center;
   }
+}/ *   = = = = =   S A A S   L A N D I N G   P A G E   = = = = =   * / 
+/* ===== SAAS LANDING PAGE ===== */
+.saas-landing {
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--font);
+}
+
+.landing-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(var(--bg-panel-rgb), 0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+}
+
+.nav-logo {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: var(--accent);
+}
+
+.landing-hero-saas {
+    padding: 160px 20px 100px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: radial-gradient(circle at top, var(--accent-glow) 0%, transparent 70%);
+}
+
+.hero-btn-lg {
+    padding: 16px 36px;
+    font-size: 16px;
+    min-width: 200px;
+}
+
+.hero-actions-saas {
+    display: flex;
+    gap: 20px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.hero-preview-scroll {
+    margin-top: 80px;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.landing-section {
+    padding: 100px 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.bg-alt {
+    background: var(--bg-panel);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.section-header h2 {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.section-header p {
+    color: var(--text-secondary);
+    font-size: 18px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.feat-card {
+    padding: 40px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: all 0.3s var(--ease);
+}
+
+.feat-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--accent-border);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.feat-icon {
+    font-size: 40px;
+    margin-bottom: 24px;
+}
+
+.feat-card h3 {
+    font-size: 20px;
+    margin-bottom: 16px;
+}
+
+.feat-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.pricing-grid {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.price-card {
+    flex: 1;
+    min-width: 300px;
+    padding: 40px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.price-card.featured {
+    border: 2px solid var(--accent);
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px var(--accent-glow);
+    z-index: 10;
+}
+
+.price-tag {
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+.price-val {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 30px;
+}
+
+.price-val span {
+    font-size: 18px;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.price-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px;
+    text-align: left;
+    width: 100%;
+}
+
+.price-list li {
+    padding: 10px 0;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.price-list li::before {
+    content: 'âœ“';
+    color: var(--success);
+    margin-right: 12px;
+    font-weight: 800;
+}
+
+.faq-list {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    margin-bottom: 32px;
+}
+
+.faq-item h4 {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.faq-item p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ===== SETUP GUIDE MODAL ===== */
+.setup-guide {
+    max-width: 450px !important;
+}
+
+.setup-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.setup-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.step-num {
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.step-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.step-text b {
+    color: var(--text);
+}
+
+.step-text code {
+    background: var(--bg-input);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.setup-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.setup-actions .btn-primary,
+.setup-actions .btn-secondary {
+    flex: 1;
+}
+
+.app-main.hidden {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .landing-nav {
+        padding: 12px 20px;
+    }
+
+    .nav-links a {
+        display: none;
+    }
+
+    .pricing-grid {
+        flex-direction: column;
+    }
+
+    .price-card.featured {
+        transform: none;
+    }
 }
