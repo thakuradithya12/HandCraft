@@ -314,8 +314,29 @@ export default function App() {
                 </div>
             )}
 
+            {/* Landing Hero */}
+            {!text && !isGenerating && (
+                <div className="landing-hero fade-in">
+                    <div className="hero-content stagger-in">
+                        <div className="hero-badge">✨ New: AI Diagrams Supported</div>
+                        <h1>Transform your digital text into <span className="text-gradient">authentic handwriting.</span></h1>
+                        <p>The ultimate professional tool for students and educators. Convert assignments, letters, and notes into realistic handwritten pages in seconds.</p>
+                        <div className="hero-actions">
+                            <button className="btn-primary hero-btn" onClick={() => {
+                                setText('Hello! Start by typing your assignment here. \n\nYou can also use the AI helper to generate content for you!');
+                                setTimeout(() => {
+                                    document.querySelector('.text-area')?.focus();
+                                    document.querySelector('.controls-panel')?.scrollIntoView({ behavior: 'smooth' });
+                                }, 100);
+                            }}>Get Started Free</button>
+                            <button className="btn-secondary hero-btn" onClick={() => setHelpOpen(true)}>How it Works</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Main Content */}
-            <div className="app-main">
+            <div className={`app-main ${!text && !isGenerating ? 'dimmed' : ''}`}>
                 <aside className="controls-panel">
                     <TextInput
                         text={text}
@@ -341,7 +362,7 @@ export default function App() {
                                     title: tmpl.headerDefaults.title || prev.title,
                                     name: prev.name || '',
                                     rollNumber: prev.rollNumber || '',
-                                    subject: prev.subject || '',
+                                    subject: tmpl.headerDefaults.subject || prev.subject,
                                     date: tmpl.headerDefaults.date || prev.date
                                 }));
                             }
@@ -369,9 +390,23 @@ export default function App() {
                         currentPage={currentPage}
                         onPageChange={setCurrentPage}
                     />
-                    <Footer />
                 </main>
             </div>
+
+            <footer className="professional-footer">
+                <div className="footer-left">
+                    <span className="footer-tag">HandCraft v2.5</span>
+                    <span className="footer-dot">•</span>
+                    <span>Ready for Professional Use</span>
+                </div>
+                <div className="footer-right">
+                    <a href="https://github.com/thakuradithya12/HandCraft" target="_blank" rel="noreferrer" className="footer-link">GitHub Repo</a>
+                    <a href="https://www.buymeacoffee.com/" target="_blank" rel="noreferrer" className="monetize-btn">
+                        <span className="monetize-icon">☕</span>
+                        Support Project
+                    </a>
+                </div>
+            </footer>
         </div>
     );
 }

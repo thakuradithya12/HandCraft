@@ -34,6 +34,7 @@ export default function StyleControls({
                             <div className="style-name">
                                 {style.name}
                                 {style.isCustom && <span className="style-badge">Custom</span>}
+                                {style.id === 'vintage-quill' && <span className="pro-badge">PRO</span>}
                             </div>
                             {style.isCustom ? (
                                 <div className="style-preview style-custom-hint">

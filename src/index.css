@@ -2104,3 +2104,234 @@ body {
     gap: 8px;
   }
 }
+
+/* ===== ENTRANCE ANIMATIONS ===== */
+.stagger-in>* {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: slideInUp 0.5s var(--ease) forwards;
+}
+
+.stagger-in>*:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.stagger-in>*:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.stagger-in>*:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.stagger-in>*:nth-child(4) {
+  animation-delay: 0.25s;
+}
+
+.stagger-in>*:nth-child(5) {
+  animation-delay: 0.3s;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== MONETIZATION STYLES ===== */
+.monetize-btn {
+  background: #FFDD00;
+  color: #000000;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  transition: all 0.2s var(--ease);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.monetize-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 221, 0, 0.4);
+  background: #f0cf00;
+}
+
+.monetize-icon {
+  font-size: 16px;
+}
+
+.pro-badge {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-left: 6px;
+  box-shadow: 0 1px 3px rgba(255, 140, 0, 0.3);
+  letter-spacing: 0.5px;
+}
+
+/* ===== PREMIUM UI POLISH ===== */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .glass-card {
+  background: rgba(24, 24, 31, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ===== LANDING HERO ===== */
+.landing-hero {
+  position: absolute;
+  top: 62px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 800px;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.hero-content h1 {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 20px;
+  letter-spacing: -1.5px;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-content p {
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.hero-btn {
+  padding: 14px 28px;
+  font-size: 15px;
+  min-width: 160px;
+}
+
+.app-main.dimmed {
+  opacity: 0.15;
+  filter: blur(5px);
+  pointer-events: none;
+  transition: all 0.5s var(--ease);
+}
+
+/* ===== PROFESSIONAL FOOTER ===== */
+.professional-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.footer-tag {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 600px) {
+  .professional-footer {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .footer-right {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .monetize-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
