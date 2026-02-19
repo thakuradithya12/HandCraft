@@ -428,100 +428,28 @@ export default function App() {
             {/* SaaS Landing Page */}
             {
                 !isAppStarted && (
-                    <div className="saas-landing fade-in">
+                    <div className="saas-landing fade-in" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
                         <nav className="landing-nav">
                             <div className="nav-logo">HandCraft</div>
                             <div className="nav-links">
-                                <a href="#features">Features</a>
-                                <a href="#pricing">Pricing</a>
                                 <button className="btn-primary nav-btn" onClick={startApp}>Launch App</button>
                             </div>
                         </nav>
 
-                        <header className="landing-hero-saas">
-                            <div className="hero-badge">✨ Now with AI Diagrams</div>
-                            <h1>The Future of <span className="text-gradient">Handwritten Assignments</span></h1>
-                            <p>Join 10,000+ students using HandCraft to generate authentic, high-quality handwritten pages with a single click. AI-powered and print-ready.</p>
+                        <header className="landing-hero-saas" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: '80px' }}>
+                            <h1 style={{ fontSize: '4rem', marginBottom: '20px', lineHeight: '1.1' }}>Digital Speed,<br /><span className="text-gradient">Analog Soul.</span></h1>
+                            <p style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '40px' }}>"Rediscover the art of handwriting in a digital world."</p>
+
+                            <p style={{ maxWidth: '600px', margin: '0 auto 40px', fontSize: '1.1rem', color: 'var(--text-muted)' }}>
+                                Convert typed text into realistic, organic handwriting instantly. <br />
+                                No signup. Free forever.
+                            </p>
+
                             <div className="hero-actions-saas">
-                                <button className="btn-primary hero-btn-lg" onClick={startApp}>Open Editor — It's Free</button>
-                                <button className="btn-secondary hero-btn-lg" onClick={() => handleAiGenerate('5 page assignment on Data Science', true)}>Try Instant Demo</button>
-                            </div>
-                            <div className="hero-preview-scroll">
-                                <span className="scroll-hint">Scroll to explore</span>
-                                <div className="scroll-arrow">↓</div>
+                                <button className="btn-primary hero-btn-lg" onClick={startApp}>Start Writing</button>
+                                <button className="btn-secondary hero-btn-lg" onClick={() => handleAiGenerate('Write a short story about a robot learning to write', true)}>Try Instant Demo</button>
                             </div>
                         </header>
-
-                        <section id="features" className="landing-section">
-                            <div className="section-header">
-                                <h2>Powerful Features</h2>
-                                <p>Everything you need for the perfect assignment.</p>
-                            </div>
-                            <div className="features-grid">
-                                <div className="feat-card">
-                                    <div className="feat-icon">✍️</div>
-                                    <h3>Authentic Hand</h3>
-                                    <p>Natural variations in every character, mimicking real human pencil-work.</p>
-                                </div>
-                                <div className="feat-card">
-                                    <div className="feat-icon">📊</div>
-                                    <h3>AI Diagrams</h3>
-                                    <p>Generate flowcharts, tables, and trees in a hand-drawn sketchy style.</p>
-                                </div>
-                                <div className="feat-card">
-                                    <div className="feat-icon">🧠</div>
-                                    <h3>AI Content</h3>
-                                    <p>Powered by local LLMs to write detailed, structured academic content.</p>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section id="pricing" className="landing-section bg-alt">
-                            <div className="section-header">
-                                <h2>Flexible Pricing</h2>
-                                <p>Choose the plan that fits your academic needs.</p>
-                            </div>
-                            <div className="pricing-grid">
-                                <div className="price-card">
-                                    <div className="price-tag">Free</div>
-                                    <div className="price-val">$0<span>/mo</span></div>
-                                    <ul className="price-list">
-                                        <li>Standard Handwriting</li>
-                                        <li>Standard Paper Types</li>
-                                        <li>Unlimited Local Drafts</li>
-                                        <li>Native Browser Print</li>
-                                    </ul>
-                                    <button className="btn-secondary" onClick={startApp}>Current Plan</button>
-                                </div>
-                                <div className="price-card featured">
-                                    <div className="price-tag">Pro</div>
-                                    <div className="price-val">$5<span>/mo</span></div>
-                                    <ul className="price-list">
-                                        <li>Premium "Vintage" Styles</li>
-                                        <li>Advanced AI Diagrams</li>
-                                        <li>Priority AI Speed</li>
-                                        <li>Cloud Sync (Coming Soon)</li>
-                                    </ul>
-                                    <button className="btn-primary" onClick={() => showToast('Payments integration coming soon!', 'info')}>Upgrade to Pro</button>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section className="landing-section">
-                            <div className="section-header">
-                                <h2>Frequently Asked</h2>
-                            </div>
-                            <div className="faq-list">
-                                <div className="faq-item">
-                                    <h4>Is it really handwritten?</h4>
-                                    <p>Yes! We use an advanced variation engine to ensure no two characters or lines look identical.</p>
-                                </div>
-                                <div className="faq-item">
-                                    <h4>Can I use it on mobile?</h4>
-                                    <p>Absolutely. The site is fully responsive and supports remote AI connections from your phone.</p>
-                                </div>
-                            </div>
-                        </section>
                     </div>
                 )
             }
@@ -592,10 +520,6 @@ export default function App() {
                 </div>
                 <div className="footer-right">
                     <a href="https://github.com/thakuradithya12/HandCraft" target="_blank" rel="noreferrer" className="footer-link">GitHub Repo</a>
-                    <a href="https://www.buymeacoffee.com/" target="_blank" rel="noreferrer" className="monetize-btn">
-                        <span className="monetize-icon">☕</span>
-                        Support Project
-                    </a>
                 </div>
             </footer>
         </div >

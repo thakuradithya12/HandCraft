@@ -2,6 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-    base: '/HandCraft/', // Specific base path for GitHub Pages sub-directory
+    // base: '/HandCraft/', // Commented out for Vercel/Root deployment
     plugins: [react()],
 })
