@@ -510,6 +510,8 @@ export default function App() {
 
             <footer className="professional-footer">
                 <div className="footer-left">
+                    <button className="footer-link" onClick={() => { setIsAppStarted(false); window.scrollTo(0, 0); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', fontSize: 'inherit', textDecoration: 'underline', marginRight: '8px' }}>← Home</button>
+                    <span className="footer-dot">•</span>
                     <span className="footer-tag">HandCraft v2.6</span>
                     <span className="footer-dot">•</span>
                     <span>Ready for Professional Use</span>
