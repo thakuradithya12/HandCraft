@@ -30,7 +30,7 @@ export default function AdUnit({
             <div style={{ background: 'var(--bg-input)', borderRadius: '8px', overflow: 'hidden', minHeight: '90px' }}>
                 <ins className="adsbygoogle"
                     style={style}
-                    data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // USER TO REPLY REPLACE THIS
+                    data-ad-client="ca-pub-6081792043858248"
                     data-ad-slot={slot}
                     data-ad-format={format}
                     data-full-width-responsive={responsive}
