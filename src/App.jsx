@@ -148,7 +148,16 @@ export default function App() {
             console.error('AI generation error:', err);
             setAiStatus('');
             showToast(`AI Error: ${err.message}`, 'error');
-            if (!useMock) setShowSetupGuide(true);
+            if (!useMock) {
+                // If on public web (Vercel) and local AI fails, auto-fallback to mock
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                if (!isLocalhost && aiConfig.mode === 'local') {
+                    showToast('Local AI unreachable. Using Demo Mode instead.', 'info');
+                    handleAiGenerate(prompt, true); // Retry with mock
+                    return;
+                }
+                setShowSetupGuide(true);
+            }
         } finally {
             setIsAiGenerating(false);
         }
