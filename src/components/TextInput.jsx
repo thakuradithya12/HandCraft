@@ -200,7 +200,7 @@ export default function TextInput({ text, onTextChange, onGenerate, isGenerating
                 <div className="fade-in">
                     <div className="content-preview-header">
                         <span>Content loaded from {fileName || 'file'}</span>
-                        <button className="input-tab active" onClick={() => setActiveTab('type')} style={{ flex: 'none', padding: '4px 12px' }}>Edit</button>
+                        <button className="input-tab active btn-xs" onClick={() => setActiveTab('type')} style={{ flex: 'none' }}>Edit</button>
                     </div>
                     <textarea
                         className="text-area"

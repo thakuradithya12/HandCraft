@@ -361,7 +361,7 @@ export default function App() {
                                         placeholder="http://localhost:11434"
                                     />
                                     <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                                        <button className="btn-ghost btn-sm" style={{ fontSize: '11px', padding: '4px 8px' }} onClick={() => setAiConfig(c => ({ ...c, url: 'http://192.168.1.71:11434' }))}>
+                                        <button className="btn-ghost btn-sm btn-xs" onClick={() => setAiConfig(c => ({ ...c, url: 'http://192.168.1.71:11434' }))}>
                                             Use PC IP (192.168.1.71)
                                         </button>
                                     </div>
