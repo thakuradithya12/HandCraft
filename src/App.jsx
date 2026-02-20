@@ -39,13 +39,10 @@ export default function App() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isAiGenerating, setIsAiGenerating] = useState(false);
     const [aiStatus, setAiStatus] = useState('');
+    // AI Configuration - Cloud Only
     const [aiConfig, setAiConfig] = useState(() => {
-        const settings = HistoryManager.loadSettings();
-        return {
-            mode: settings.mode || 'local', // 'local' | 'cloud'
-            url: settings.ollamaUrl || getOllamaBase(),
-            apiKey: settings.apiKey || ''
-        };
+        const saved = localStorage.getItem('hw-ai-config');
+        return saved ? JSON.parse(saved) : { mode: 'cloud', url: 'http://localhost:11434', apiKey: '' };
     });
 
     // Sync config with utils
@@ -330,56 +327,23 @@ export default function App() {
                             <button className="modal-close" onClick={() => setSettingsOpen(false)}>&times;</button>
                         </div>
                         <div className="modal-body">
-                            <p className="settings-hint">Choose your AI provider. Use <b>Cloud AI</b> (Gemini) for instant results without installing anything.</p>
+                            <p className="settings-hint">
+                                HandCraft uses <b>Google Gemini AI</b> for content generation.
+                            </p>
 
-                            <div className="toggle-group" style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'var(--bg-input)', padding: '4px', borderRadius: '8px' }}>
-                                <button
-                                    className={`btn-toggle ${aiConfig.mode === 'local' ? 'active' : ''}`}
-                                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', background: aiConfig.mode === 'local' ? 'var(--bg-panel)' : 'transparent', color: aiConfig.mode === 'local' ? 'var(--text)' : 'var(--text-muted)', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }}
-                                    onClick={() => setAiConfig(c => ({ ...c, mode: 'local' }))}
-                                >
-                                    Local (Ollama)
-                                </button>
-                                <button
-                                    className={`btn-toggle ${aiConfig.mode === 'cloud' ? 'active' : ''}`}
-                                    style={{ flex: 1, padding: '8px', borderRadius: '6px', border: 'none', background: aiConfig.mode === 'cloud' ? 'var(--bg-panel)' : 'transparent', color: aiConfig.mode === 'cloud' ? 'var(--accent)' : 'var(--text-muted)', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s' }}
-                                    onClick={() => setAiConfig(c => ({ ...c, mode: 'cloud' }))}
-                                >
-                                    Cloud AI (Gemini)
-                                </button>
+                            <div className="field-group fade-in">
+                                <label className="field-label">Google Gemini API Key (Free)</label>
+                                <input
+                                    type="password"
+                                    className="field-input"
+                                    value={aiConfig.apiKey}
+                                    onChange={e => setAiConfig(c => ({ ...c, apiKey: e.target.value }))}
+                                    placeholder="Paste your API Key here..."
+                                />
+                                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                                    Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>Google AI Studio</a>.
+                                </p>
                             </div>
-
-                            {aiConfig.mode === 'local' ? (
-                                <div className="field-group fade-in">
-                                    <label className="field-label">Ollama Endpoint URL</label>
-                                    <input
-                                        type="text"
-                                        className="field-input"
-                                        value={aiConfig.url}
-                                        onChange={e => setAiConfig(c => ({ ...c, url: e.target.value }))}
-                                        placeholder="http://localhost:11434"
-                                    />
-                                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                                        <button className="btn-ghost btn-sm btn-xs" onClick={() => setAiConfig(c => ({ ...c, url: 'http://192.168.1.71:11434' }))}>
-                                            Use PC IP (192.168.1.71)
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="field-group fade-in">
-                                    <label className="field-label">Google Gemini API Key (Free)</label>
-                                    <input
-                                        type="password"
-                                        className="field-input"
-                                        value={aiConfig.apiKey}
-                                        onChange={e => setAiConfig(c => ({ ...c, apiKey: e.target.value }))}
-                                        placeholder="Paste your API Key here..."
-                                    />
-                                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                                        Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--accent)' }}>Google AI Studio</a>.
-                                    </p>
-                                </div>
-                            )}
                         </div>
                         <div className="settings-actions">
                             <button className="btn-primary" onClick={() => setSettingsOpen(false)}>Save Settings</button>
