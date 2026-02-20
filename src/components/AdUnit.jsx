@@ -12,8 +12,9 @@ export default function AdUnit({
     useEffect(() => {
         try {
             // Check if adsbygoogle is loaded and push the ad
-            if (window.adsbygoogle) {
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            const adsbygoogle = window.adsbygoogle || [];
+            if (adsbygoogle) {
+                adsbygoogle.push({});
             }
         } catch (e) {
             console.error('AdSense error:', e);
