@@ -8,6 +8,7 @@ import ToastContainer, { showToast } from './components/Toast.jsx';
 import HelpModal from './components/HelpModal.jsx';
 import ProgressBar from './components/ProgressBar.jsx';
 import HandwritingSampler from './components/HandwritingSampler.jsx';
+import AdUnit from './components/AdUnit.jsx';
 import { HANDWRITING_STYLES, PAGE_TYPES, PAGE_TEMPLATES } from './utils/variationEngine.js';
 import { parseText, paginateContent } from './utils/paginationEngine.js';
 import { renderAllPages } from './utils/handwritingRenderer.js';
@@ -441,9 +442,19 @@ export default function App() {
                         isGenerating={isGenerating}
                         hasPages={canvases.length > 0}
                     />
+
+                    {/* Sidebar Ad Slot */}
+                    <div style={{ padding: '0 20px 20px' }}>
+                        <AdUnit slot="SIDEBAR_SLOT_ID" label="Sponsored" />
+                    </div>
                 </aside>
 
                 <main className="preview-panel">
+                    {/* Top Ad Slot (High Visibility) */}
+                    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+                        <AdUnit slot="TOP_BANNER_ID" style={{ display: 'block', height: '90px' }} />
+                    </div>
+
                     <PagePreview
                         canvases={canvases}
                         currentPage={currentPage}
