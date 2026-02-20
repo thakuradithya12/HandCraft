@@ -3,26 +3,17 @@ import { useState, useEffect } from 'react';
 export default function PagePreview({ canvases, currentPage, onPageChange }) {
     const [previewUrls, setPreviewUrls] = useState([]);
     const [zoom, setZoom] = useState(100);
-    const [fitMode, setFitMode] = useState(true); // Default to Fit-to-Screen
+    // Removed strict "Fit Mode" to allow natural scrolling
 
     useEffect(() => {
         if (canvases && canvases.length > 0) {
             const urls = canvases.map(c => c.toDataURL('image/png'));
             setPreviewUrls(urls);
-            setFitMode(true); // Reset to fit mode on new generation
+            setZoom(100); // Reset to standard readable zoom
         } else {
             setPreviewUrls([]);
         }
     }, [canvases]);
-
-    const handleZoom = (newZoom) => {
-        setFitMode(false);
-        setZoom(newZoom);
-    };
-
-    const toggleFitMode = () => {
-        setFitMode(true);
-    };
 
     const totalPages = previewUrls.length;
 
@@ -52,11 +43,11 @@ export default function PagePreview({ canvases, currentPage, onPageChange }) {
                 </div>
                 <div className="preview-toolbar-right">
                     <div className="zoom-controls">
-                        <button className="zoom-btn" onClick={() => handleZoom(Math.max(30, zoom - 15))} title="Zoom out">−</button>
-                        <span className="zoom-value">{fitMode ? 'Fit' : `${zoom}%`}</span>
-                        <button className="zoom-btn" onClick={() => handleZoom(Math.min(200, zoom + 15))} title="Zoom in">+</button>
-                        <button className={`zoom-btn zoom-fit ${fitMode ? 'active' : ''}`} onClick={toggleFitMode} title="Fit to Screen">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 9h6v6" /></svg>
+                        <button className="zoom-btn" onClick={() => setZoom(z => Math.max(30, z - 15))} title="Zoom out">−</button>
+                        <span className="zoom-value">{zoom}%</span>
+                        <button className="zoom-btn" onClick={() => setZoom(z => Math.min(200, z + 15))} title="Zoom in">+</button>
+                        <button className="zoom-btn zoom-fit" onClick={() => setZoom(100)} title="Reset Zoom">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
                         </button>
                     </div>
                     <span className="preview-badge">A4 · 300 DPI</span>
@@ -87,22 +78,14 @@ export default function PagePreview({ canvases, currentPage, onPageChange }) {
                         className="preview-page fade-in"
                         src={previewUrls[currentPage]}
                         alt={`Page ${currentPage + 1}`}
-                        key={`${currentPage}-${zoom}-${fitMode}`} // Force re-render on mode change
-                        style={
-                            fitMode ? {
-                                maxWidth: '100%',
-                                maxHeight: 'calc(100vh - 200px)', // Dynamic fit height
-                                width: 'auto',
-                                height: 'auto',
-                                objectFit: 'contain',
-                                boxShadow: 'var(--shadow-card)'
-                            } : {
-                                width: `${zoom}%`,
-                                maxWidth: 'none',
-                                height: 'auto',
-                                boxShadow: 'var(--shadow-card)'
-                            }
-                        }
+                        key={`${currentPage}-${zoom}`}
+                        style={{
+                            width: `${zoom}%`,
+                            maxWidth: 'none',
+                            height: 'auto',
+                            boxShadow: 'var(--shadow-card)',
+                            marginBottom: '40px' // Add spacing at bottom for scrolling
+                        }}
                     />
                 </div>
             </div>
