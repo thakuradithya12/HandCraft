@@ -7,7 +7,6 @@ import ActionBar from './components/ActionBar.jsx';
 import ToastContainer, { showToast } from './components/Toast.jsx';
 import HelpModal from './components/HelpModal.jsx';
 import ProgressBar from './components/ProgressBar.jsx';
-import Footer from './components/Footer.jsx';
 import HandwritingSampler from './components/HandwritingSampler.jsx';
 import { HANDWRITING_STYLES, PAGE_TYPES, PAGE_TEMPLATES } from './utils/variationEngine.js';
 import { parseText, paginateContent } from './utils/paginationEngine.js';

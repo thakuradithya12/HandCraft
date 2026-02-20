@@ -120,15 +120,25 @@ body {
 }
 
 /* ===== HEADER ===== */
+/* ===== HEADER ===== */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 24px;
-  background: var(--bg-panel);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  z-index: 20;
+  z-index: 100;
+  position: sticky;
+  top: 0;
+  transition: background 0.3s;
+}
+
+[data-theme="dark"] .app-header {
+  background: rgba(24, 24, 31, 0.85);
 }
 
 .app-logo {
