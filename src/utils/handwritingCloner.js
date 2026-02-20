@@ -135,7 +135,11 @@ function loadImage(file) {
  * Convert image to grayscale pixel array.
  * Returns { data: Uint8Array (grayscale), width, height }
  */
-function toGrayscale(ctx, width, height) {
+/**
+ * Convert image to grayscale pixel array.
+ * Returns { data: Uint8Array (grayscale), width, height }
+ */
+export function toGrayscale(ctx, width, height) {
     const imageData = ctx.getImageData(0, 0, width, height);
     const gray = new Uint8Array(width * height);
     for (let i = 0; i < gray.length; i++) {
@@ -150,7 +154,7 @@ function toGrayscale(ctx, width, height) {
 /**
  * Compute Otsu's threshold for binarization.
  */
-function otsuThreshold(gray) {
+export function otsuThreshold(gray) {
     const histogram = new Array(256).fill(0);
     for (let i = 0; i < gray.length; i++) histogram[gray[i]]++;
 
@@ -370,9 +374,10 @@ function extractGlyph(sourceCtx, cell, threshold) {
  *
  * @param {File} imageFile - The uploaded image file (photo of filled-in template)
  * @param {Function} onProgress - Callback (0-100) for progress updates
+ * @param {number} thresholdAdjustment - Optional manual adjustment to Otsu threshold (-50 to +50)
  * @returns {Object} glyphMap - { char: Canvas, ... }
  */
-export async function processHandwritingSheet(imageFile, onProgress = () => { }) {
+export async function processHandwritingSheet(imageFile, onProgress = () => { }, thresholdAdjustment = 0) {
     onProgress(5);
 
     // Load the image
@@ -392,7 +397,11 @@ export async function processHandwritingSheet(imageFile, onProgress = () => { })
 
     // Grayscale + threshold
     const gray = toGrayscale(ctx, width, height);
-    const threshold = otsuThreshold(gray);
+    let threshold = otsuThreshold(gray);
+
+    // Apply manual adjustment
+    threshold = Math.max(10, Math.min(245, threshold + thresholdAdjustment));
+
     onProgress(25);
 
     // Detect grid cells
@@ -403,6 +412,9 @@ export async function processHandwritingSheet(imageFile, onProgress = () => { })
     const glyphMap = {};
     let charIndex = 0;
     const totalChars = TEMPLATE_CHARS.length;
+
+    // Filter out potential noise (blobs too small to be characters)
+    // We do simple size filtering in extractGlyph, but we could add more here if needed.
 
     for (let row = 0; row < gridCells.length && charIndex < totalChars; row++) {
         const rowCells = gridCells[row];

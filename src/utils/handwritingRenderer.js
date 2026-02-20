@@ -187,13 +187,16 @@ function renderChar(ctx, char, x, y, charIndex, variation, style, inkColorKey, g
 
     // Font-based fallback
     // Ink blob effect
+    // Ink blob effect
     if (variation.inkBlob()) {
-        ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity * 0.4})`;
+        ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity * 0.6})`; // Darker blobs
         ctx.font = `${style.weight} ${fontSize + 3}px "${style.fontFamily}", cursive`;
         ctx.fillText(char, 0.5, 0.5);
     }
 
-    ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})`;
+    // Main text - Higher opacity for better contrast
+    const contrastOpacity = Math.min(1.0, opacity + 0.15);
+    ctx.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${contrastOpacity})`;
     ctx.font = `${style.weight} ${fontSize}px "${style.fontFamily}", cursive`;
     ctx.fillText(char, 0, 0);
 

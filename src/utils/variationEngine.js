@@ -275,32 +275,32 @@ export const HANDWRITING_STYLES = [
 
 export const INK_COLORS = {
     blue: {
-        base: { r: 20, g: 40, b: 160 },
+        base: { r: 10, g: 30, b: 140 }, // Darker base blue
         variations: [
+            { r: 8, g: 25, b: 130 },
             { r: 15, g: 35, b: 150 },
-            { r: 25, g: 45, b: 170 },
-            { r: 18, g: 38, b: 145 },
-            { r: 22, g: 42, b: 165 },
+            { r: 10, g: 28, b: 135 },
+            { r: 12, g: 32, b: 145 },
         ],
         label: 'Blue Ink'
     },
     darkblue: {
-        base: { r: 10, g: 18, b: 100 },
+        base: { r: 5, g: 10, b: 60 }, // Deep Navy
         variations: [
-            { r: 8, g: 15, b: 90 },
-            { r: 12, g: 20, b: 110 },
-            { r: 10, g: 17, b: 95 },
-            { r: 14, g: 22, b: 105 },
+            { r: 2, g: 8, b: 50 },
+            { r: 8, g: 15, b: 70 },
+            { r: 5, g: 12, b: 55 },
+            { r: 6, g: 14, b: 65 },
         ],
         label: 'Dark Blue'
     },
     black: {
-        base: { r: 25, g: 25, b: 28 },
+        base: { r: 15, g: 15, b: 18 }, // Pure Black-ish
         variations: [
+            { r: 10, g: 10, b: 12 },
             { r: 20, g: 20, b: 24 },
-            { r: 30, g: 30, b: 35 },
-            { r: 22, g: 22, b: 26 },
-            { r: 28, g: 28, b: 32 },
+            { r: 12, g: 12, b: 15 },
+            { r: 18, g: 18, b: 20 },
         ],
         label: 'Black Ink'
     },

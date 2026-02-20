@@ -33,11 +33,11 @@ export async function exportToPDF(canvases, filename = 'assignment') {
         }
 
         const canvas = canvases[i];
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgData = canvas.toDataURL('image/png'); // PNG for lossless quality
 
         pdf.addImage(
             imgData,
-            'JPEG',
+            'PNG',
             0,
             0,
             A4_WIDTH_MM,
