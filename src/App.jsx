@@ -69,7 +69,7 @@ export default function App() {
     });
 
     // SaaS specific state
-    const [isAppStarted, setIsAppStarted] = useState(() => !!localStorage.getItem('hw-text'));
+    const [isAppStarted, setIsAppStarted] = useState(true);
     const [showSetupGuide, setShowSetupGuide] = useState(false);
 
     useEffect(() => {
@@ -430,37 +430,9 @@ export default function App() {
                 )
             }
 
-            {/* SaaS Landing Page */}
-            {
-                !isAppStarted && (
-                    <div className="saas-landing fade-in" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-                        <nav className="landing-nav">
-                            <div className="nav-logo">HandCraft</div>
-                            <div className="nav-links">
-                                <button className="btn-primary nav-btn" onClick={startApp}>Launch App</button>
-                            </div>
-                        </nav>
-
-                        <header className="landing-hero-saas" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingBottom: '80px' }}>
-                            <h1 style={{ fontSize: '4rem', marginBottom: '20px', lineHeight: '1.1' }}>Digital Speed,<br /><span className="text-gradient">Analog Soul.</span></h1>
-                            <p style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', fontStyle: 'italic', marginBottom: '40px' }}>"Rediscover the art of handwriting in a digital world."</p>
-
-                            <p style={{ maxWidth: '600px', margin: '0 auto 40px', fontSize: '1.1rem', color: 'var(--text-muted)' }}>
-                                Convert typed text into realistic, organic handwriting instantly. <br />
-                                No signup. Free forever.
-                            </p>
-
-                            <div className="hero-actions-saas">
-                                <button className="btn-primary hero-btn-lg" onClick={startApp}>Start Writing</button>
-                                <button className="btn-secondary hero-btn-lg" onClick={() => handleAiGenerate('Write a short story about a robot learning to write', true)}>Try Instant Demo</button>
-                            </div>
-                        </header>
-                    </div>
-                )
-            }
 
             {/* Main Editor Content */}
-            <div className={`app-main ${!isAppStarted ? 'hidden' : ''}`}>
+            <div className="app-main">
                 <aside className="controls-panel">
                     <TextInput
                         text={text}
@@ -519,9 +491,7 @@ export default function App() {
 
             <footer className="professional-footer">
                 <div className="footer-left">
-                    <button className="footer-link" onClick={() => { setIsAppStarted(false); window.scrollTo(0, 0); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', fontSize: 'inherit', textDecoration: 'underline', marginRight: '8px' }}>← Home</button>
-                    <span className="footer-dot">•</span>
-                    <span className="footer-tag">HandCraft v2.6</span>
+                    <span className="footer-link">HandCraft v2.7</span>
                     <span className="footer-dot">•</span>
                     <span>Ready for Professional Use</span>
                 </div>
