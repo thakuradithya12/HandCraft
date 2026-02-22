@@ -55,8 +55,11 @@ async function callCloudAI(prompt, onStream) {
 
     const response = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, apiKey: CLOUD_API_KEY })
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Gemini-API-Key': CLOUD_API_KEY // Standardize header if possible
+        },
+        body: JSON.stringify({ prompt, apiKey: CLOUD_API_KEY, system: buildSystemPrompt(5) })
     });
 
     if (!response.ok) {
@@ -73,29 +76,29 @@ async function callCloudAI(prompt, onStream) {
  * Build the system prompt for generating assignment content.
  */
 function buildSystemPrompt(pageCount) {
-    return `You are an expert academic assignment writer. Write detailed, well-structured assignment content.
+    const wordCount = (pageCount || 5) * 350;
+    return `You are an expert academic assignment writer and researcher. Your goal is to write a highly detailed, professional, and well-researched assignment.
 
-RULES:
-- Write in clear academic English suitable for college/university assignments
-- Use markdown headings (# for main headings, ## for sub-headings)
-- Write ${pageCount || 5} pages worth of content (approximately ${(pageCount || 5) * 350} words)
-- Include an introduction and conclusion
-- Break content into logical sections with headings
-- Write complete, detailed paragraphs (not bullet points)
-- After key concepts, include a diagram marker on its own line in this EXACT format:
-  [DIAGRAM: type | title | description]
-  
-  Where type is one of: flowchart, tree, table, labeled, cycle
-  Examples:
-  [DIAGRAM: flowchart | Algorithm Steps | Start -> Input -> Process -> Output -> End]
-  [DIAGRAM: tree | Binary Search Tree | Root:50, Left:30(Left:20,Right:40), Right:70(Left:60,Right:80)]
-  [DIAGRAM: table | Comparison | Headers: Feature,Array,LinkedList; Row1: Access,O(1),O(n); Row2: Insert,O(n),O(1)]
-  [DIAGRAM: labeled | CPU Architecture | Components: ALU, Control Unit, Registers, Cache with arrows between them]
-  [DIAGRAM: cycle | Software Development | Requirements -> Design -> Implementation -> Testing -> Deployment -> Maintenance -> Requirements]
+CORE REQUIREMENTS:
+- TONE: Professional academic English. No slang, no conversational filler.
+- FORMAT: Use Markdown headings (# for Main Titles, ## for Sections, ### for Sub-sections).
+- LENGTH: Write approximately ${wordCount} words to fill ${pageCount || 5} pages.
+- STRUCTURE: Include a Title, Introduction, Body Sections with deep analysis, and a comprehensive Conclusion.
+- PARAGRAPHS: Write long, descriptive paragraphs. Do NOT use bullet points or numbered lists.
+- CONTENT: Focus on depth. Explain "why" and "how", not just "what".
 
-- Include 2-4 diagrams spread throughout the content
-- Do NOT use bullet points or numbered lists — write in paragraph form
-- Do NOT include any meta-commentary about the assignment itself`;
+DIAGRAMS:
+Embed 2-4 diagrams at relevant points using this EXACT format:
+[DIAGRAM: type | title | description]
+
+Valid types: flowchart, tree, table, labeled, cycle, venn, graph
+Examples:
+[DIAGRAM: flowchart | DNS Resolution | User -> Local DNS -> Root Server -> TLD Server -> Authoritative DNS -> IP Return]
+[DIAGRAM: venn | SQL Joins | Sets: Inner Join, Left Join, Cross Join; Intersection: Data consistency]
+[DIAGRAM: graph | Resource Usage | Labels: Time, CPU%; Points: (0,10), (1,30), (2,25), (3,60), (4,40)]
+
+- Do NOT include any meta-commentary like "Sure, I can write that for you".
+- Begin directly with the assignment title.`;
 }
 
 /**

@@ -21,8 +21,11 @@ export default class ErrorBoundary extends React.Component {
                 <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'sans-serif' }}>
                     <h1>Something went wrong.</h1>
                     <p>We're sorry, but the application encountered an unexpected error.</p>
-                    <details style={{ whiteSpace: 'pre-wrap', marginTop: '20px', color: '#666' }}>
+                    <details open style={{ whiteSpace: 'pre-wrap', marginTop: '20px', color: '#666', textAlign: 'left', background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
+                        <summary style={{ marginBottom: '10px', cursor: 'pointer', fontWeight: 'bold' }}>Error Details</summary>
                         {this.state.error && this.state.error.toString()}
+                        <br />
+                        {this.state.errorInfo && this.state.errorInfo.componentStack && this.state.errorInfo.componentStack.slice(0, 500) + '...'}
                     </details>
                     <button
                         onClick={() => window.location.reload()}

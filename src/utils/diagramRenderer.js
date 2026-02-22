@@ -5,7 +5,7 @@
  * All diagrams use a sketchy, pencil-drawn aesthetic with slight wobble.
  */
 
-import { A4_WIDTH_PX } from './paginationEngine.js';
+
 
 const PENCIL_COLOR = '#3a3a3a';
 const PENCIL_LIGHT = '#5a5a5a';
@@ -402,6 +402,100 @@ function renderCycle(ctx, title, description, x, y, width, height) {
     ctx.globalAlpha = 1.0;
 }
 
+/**
+ * Render a Venn diagram.
+ * Description format: "Sets: Set A, Set B, Set C; Intersection: Common Value"
+ */
+function renderVenn(ctx, title, description, x, y, width, height) {
+    const parts = description.split(';').map(p => p.trim());
+    const setsPart = parts.find(p => p.toLowerCase().includes('sets:'));
+    const intersectPart = parts.find(p => p.toLowerCase().includes('intersection:'));
+
+    const sets = setsPart ? setsPart.split(':')[1].split(',').map(s => s.trim()) : ['Set A', 'Set B'];
+    const intersection = intersectPart ? intersectPart.split(':')[1].trim() : '';
+
+    pencilText(ctx, title, x + width / 2, y + 25, 32);
+    setupPencilStyle(ctx);
+
+    const centerX = x + width / 2;
+    const centerY = y + height / 2 + 10;
+    const rad = 95;
+    const offset = 55;
+
+    // Draw 2 or 3 circles based on input
+    const circles = [];
+    if (sets.length >= 3) {
+        circles.push({ x: centerX, y: centerY - offset, label: sets[0] });
+        circles.push({ x: centerX - offset, y: centerY + offset, label: sets[1] });
+        circles.push({ x: centerX + offset, y: centerY + offset, label: sets[2] });
+    } else {
+        circles.push({ x: centerX - offset, y: centerY, label: sets[0] });
+        circles.push({ x: centerX + offset, y: centerY, label: sets[1] });
+    }
+
+    circles.forEach(c => {
+        sketchyEllipse(ctx, c.x, c.y, rad, rad, 2);
+        pencilText(ctx, c.label, c.x, c.y + (c.y > centerY ? 40 : -40), 18);
+    });
+
+    if (intersection) {
+        pencilText(ctx, intersection, centerX, centerY, 16);
+    }
+}
+
+/**
+ * Render a simple Line Graph.
+ * Description format: "Labels: Jan, Feb, Mar; Points: 10, 40, 25"
+ */
+function renderGraph(ctx, title, description, x, y, width, height) {
+    const parts = description.split(';').map(p => p.trim());
+    const labelsPart = parts.find(p => p.toLowerCase().includes('labels:'));
+    const pointsPart = parts.find(p => p.toLowerCase().includes('points:'));
+
+    const labels = labelsPart ? labelsPart.split(':')[1].split(',').map(s => s.trim()) : ['T1', 'T2', 'T3', 'T4'];
+    const points = pointsPart ? pointsPart.split(':')[1].split(',').map(p => parseFloat(p.trim().replace(/[()]/g, ''))) : [10, 30, 20, 50];
+
+    pencilText(ctx, title, x + width / 2, y + 20, 32);
+    setupPencilStyle(ctx);
+
+    const margin = 50;
+    const gx = x + margin;
+    const gy = y + 60;
+    const gw = width - margin * 2;
+    const gh = height - 100;
+
+    // AXES
+    sketchyLine(ctx, gx, gy, gx, gy + gh, 1.5); // Y
+    sketchyLine(ctx, gx, gy + gh, gx + gw, gy + gh, 1.5); // X
+
+    if (points.length === 0) return;
+
+    const maxVal = Math.max(...points, 10);
+    const stepX = gw / (Math.max(points.length - 1, 1));
+
+    let prevX, prevY;
+
+    for (let i = 0; i < points.length; i++) {
+        const px = gx + i * stepX;
+        const py = gy + gh - (points[i] / maxVal) * gh;
+
+        // Draw dot
+        sketchyEllipse(ctx, px, py, 4, 4, 1);
+
+        // Label on X axis
+        if (labels[i]) {
+            pencilText(ctx, labels[i], px, gy + gh + 25, 16);
+        }
+
+        // Connect lines
+        if (i > 0) {
+            sketchyLine(ctx, prevX, prevY, px, py, 1.2);
+        }
+        prevX = px;
+        prevY = py;
+    }
+}
+
 // ============ MAIN EXPORTS ============
 
 /**
@@ -433,7 +527,9 @@ export function getDiagramHeight(diagramType) {
         tree: 340,
         table: 300,
         labeled: 380,
-        cycle: 360
+        cycle: 360,
+        venn: 320,
+        graph: 300
     };
     return heights[diagramType] || 320;
 }
@@ -475,6 +571,12 @@ export function renderDiagram(ctx, diagram, x, y, width, height) {
             break;
         case 'cycle':
             renderCycle(ctx, diagram.title, diagram.description, x + 20, y, width - 40, height);
+            break;
+        case 'venn':
+            renderVenn(ctx, diagram.title, diagram.description, x + 20, y, width - 40, height);
+            break;
+        case 'graph':
+            renderGraph(ctx, diagram.title, diagram.description, x + 20, y, width - 40, height);
             break;
         default:
             // Unknown type — render as labeled

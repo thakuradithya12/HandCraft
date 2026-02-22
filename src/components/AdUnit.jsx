@@ -52,10 +52,10 @@ export default function AdUnit({
 
                 {/* Dev Only Visual Placeholder */}
                 {isDev && (
-                    <div style={{ padding: '20px', color: 'var(--text-muted)', fontSize: '12px', border: '1px dashed var(--border)' }}>
-                        Creates space for Ad {slot ? `(Slot: ${slot})` : '(Auto)'}
-                        <br />
-                        <small>Ads require valid Publisher ID & Domain approval</small>
+                    <div style={{ padding: '20px', color: 'var(--text-muted)', fontSize: '12px', border: '1px dashed var(--border)', background: 'var(--accent-soft)' }}>
+                        <b>AdSense Dev Placeholder</b><br />
+                        Slot: {slot || 'Auto'} <br />
+                        <small>Ads are hidden on localhost. Verify Publisher ID in public/ads.txt</small>
                     </div>
                 )}
             </div>

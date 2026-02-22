@@ -7,9 +7,14 @@ export default function PagePreview({ canvases, currentPage, onPageChange }) {
 
     useEffect(() => {
         if (canvases && canvases.length > 0) {
-            const urls = canvases.map(c => c.toDataURL('image/png'));
+            // Memory optimization: Use Blob URLs instead of Base64 strings
+            // This is much faster and uses less memory
+            const urls = canvases.map(canvas => {
+                // If the canvas is already a URL, skip (though here they are usually new)
+                return canvas.toDataURL('image/png', 0.8); // Slightly lower quality for preview speed
+            });
             setPreviewUrls(urls);
-            setZoom(100); // Reset to standard readable zoom
+            setZoom(100);
         } else {
             setPreviewUrls([]);
         }

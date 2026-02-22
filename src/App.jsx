@@ -9,12 +9,15 @@ import HelpModal from './components/HelpModal.jsx';
 import ProgressBar from './components/ProgressBar.jsx';
 import HandwritingSampler from './components/HandwritingSampler.jsx';
 import AdUnit from './components/AdUnit.jsx';
+
+// Utils & Constants
 import { HANDWRITING_STYLES, PAGE_TYPES, PAGE_TEMPLATES } from './utils/variationEngine.js';
-import { parseText, paginateContent } from './utils/paginationEngine.js';
-import { renderAllPages } from './utils/handwritingRenderer.js';
 import { exportToPDF } from './utils/pdfExporter.js';
-import { generateAssignment, setOllamaBase, getOllamaBase, setAIConfig, getAIConfig } from './utils/aiContentGenerator.js';
 import { HistoryManager } from './utils/historyManager.js';
+
+// Custom Hooks
+import { useAI } from './hooks/useAI.js';
+import { useRenderer } from './hooks/useRenderer.js';
 
 export default function App() {
     // Content state
@@ -33,22 +36,41 @@ export default function App() {
     const [fatigueMode, setFatigueMode] = useState('none');
     const [pageTemplate, setPageTemplate] = useState('none');
     const [glyphMap, setGlyphMap] = useState(null);
+    const [isAppStarted, setIsAppStarted] = useState(false);
 
-    // Rendering state
-    const [canvases, setCanvases] = useState([]);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [isAiGenerating, setIsAiGenerating] = useState(false);
-    const [aiStatus, setAiStatus] = useState('');
-    // AI Configuration - Cloud Only
+    // Initial AI Config from LocalStorage
     const [aiConfig, setAiConfig] = useState(() => {
-        const saved = localStorage.getItem('hw-ai-config');
-        return saved ? JSON.parse(saved) : { mode: 'cloud', url: 'http://localhost:11434', apiKey: '' };
+        try {
+            const saved = localStorage.getItem('hw-ai-config');
+            return saved ? JSON.parse(saved) : { mode: 'cloud', url: 'http://localhost:11434', apiKey: '' };
+        } catch (e) {
+            return { mode: 'cloud', url: 'http://localhost:11434', apiKey: '' };
+        }
     });
 
-    // Sync config with utils
+    // Initialize Hooks
+    const {
+        isAiGenerating,
+        aiStatus,
+        // aiConfig, // managed in App.jsx now to prevent sync loops
+        // setAiConfig,
+        handleAiGenerate: handleAiGenerateBase,
+        showSetupGuide,
+        setShowSetupGuide,
+        setOllamaUrl
+    } = useAI(aiConfig, setAiConfig);
+
+    const {
+        canvases,
+        currentPage,
+        setCurrentPage,
+        isGenerating,
+        handleGenerate: handleGenerateBase
+    } = useRenderer();
+
+    // Persist AI Config
     useEffect(() => {
-        setAIConfig(aiConfig);
+        localStorage.setItem('hw-ai-config', JSON.stringify(aiConfig));
         HistoryManager.saveSettings({
             mode: aiConfig.mode,
             ollamaUrl: aiConfig.url,
@@ -66,25 +88,12 @@ export default function App() {
     });
 
     // SaaS specific state
-    const [isAppStarted, setIsAppStarted] = useState(true);
-    const [showSetupGuide, setShowSetupGuide] = useState(false);
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('hw-theme', theme);
     }, [theme]);
 
-    const startApp = () => {
-        setIsAppStarted(true);
-        if (!text) {
-            setText('Hello! Start by typing your assignment here. \n\nYou can also use the AI helper to generate content for you!');
-        }
-        setTimeout(() => {
-            const editor = document.querySelector('.text-area') || document.querySelector('.controls-panel');
-            editor?.scrollIntoView({ behavior: 'smooth' });
-            document.querySelector('.text-area')?.focus();
-        }, 100);
-    };
 
 
 
@@ -107,105 +116,43 @@ export default function App() {
 
     const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');
 
-    // AI Content Generation
-    const handleAiGenerate = useCallback(async (prompt, useMock = false) => {
-        setIsAiGenerating(true);
-        setAiStatus(useMock ? 'Generating Demo...' : 'Connecting to Ollama...');
-
-        try {
-            const content = await generateAssignment(
-                prompt,
-                (partialText) => {
-                    setText(partialText);
-                    setAiStatus(`Generating... (${partialText.split(/\s+/).length} words)`);
-                },
-                (status) => setAiStatus(status),
-                useMock
-            );
-
-            if (!content || !content.trim()) {
-                throw new Error('AI generated empty content. Please try again with a different prompt.');
-            }
-
-            setText(content);
-            setAiStatus('Content generated! Click "Generate Pages" to render.');
-            showToast('Assignment content generated! Now click Generate Pages.', 'success');
-            setIsAppStarted(true);
-
-            // Auto-fill header title from prompt if empty
-            if (!header.title) {
-                const topicMatch = prompt.match(/(?:on|about|topic:|title:)\s+([^.]+)/i);
-                if (topicMatch) {
-                    let newTitle = topicMatch[1].trim();
-                    if (newTitle.length > 40) newTitle = newTitle.substring(0, 40) + '...';
-                    setHeader(h => ({ ...h, title: newTitle }));
-                }
-            }
-        } catch (err) {
-            console.error('AI generation error:', err);
-            setAiStatus('');
-            showToast(`AI Error: ${err.message}`, 'error');
-            if (!useMock) {
-                // If on public web (Vercel) and local AI fails, auto-fallback to mock
-                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                if (!isLocalhost && aiConfig.mode === 'local') {
-                    showToast('Local AI unreachable. Using Demo Mode instead.', 'info');
-                    handleAiGenerate(prompt, true); // Retry with mock
-                    return;
-                }
-                setShowSetupGuide(true);
-            }
-        } finally {
-            setIsAiGenerating(false);
-        }
-    }, [header.title]);
+    // AI Content Generation Wrapper
+    const handleAiGenerate = useCallback((prompt, useMock = false) => {
+        setIsAppStarted(true);
+        handleAiGenerateBase(prompt, setText, header.title, setHeader, useMock);
+    }, [handleAiGenerateBase, header.title, setHeader]);
 
     // Render handwritten pages
     const handleGenerate = useCallback(async () => {
-        if (!text.trim()) {
-            showToast('Please generate or type some content first.', 'error');
-            return;
-        }
-
-        setIsGenerating(true);
-        showToast('Rendering handwritten pages...', 'info');
-        await new Promise(resolve => setTimeout(resolve, 80));
+        const styleParams = {
+            selectedStyle,
+            inkColor,
+            pageType,
+            lineSpacing,
+            variationIntensity,
+            fontSize,
+            fatigueMode
+        };
 
         try {
-            const blocks = parseText(text);
-            const style = { ...selectedStyle, lineHeight: lineSpacing, variationIntensity, fontSize: fontSize * 2 };
-
-            const hasHeader = Object.values(header).some(v => v.trim());
-            const headerInfo = hasHeader ? header : null;
-
-            const pages = paginateContent(blocks, style, pageType, headerInfo);
-            const activeGlyphMap = selectedStyle.isCustom ? glyphMap : null;
-            const rendered = renderAllPages(pages, style, pageType, inkColor, activeGlyphMap, fatigueMode);
-
-            setCanvases(rendered);
-            setCurrentPage(0);
-
-            const count = rendered.length;
-            showToast(`Generated ${count} page${count > 1 ? 's' : ''} successfully!`, 'success');
-
-            // Save to history
-            const entry = {
-                id: Date.now(),
-                title: header.title || text.slice(0, 40).trim() + '...',
-                pages: count,
-                style: selectedStyle.name,
-                date: new Date().toLocaleString()
-            };
-            const newHistory = [entry, ...history.slice(0, 9)];
-            setHistory(newHistory);
-            localStorage.setItem('hw-history', JSON.stringify(newHistory));
+            const count = await handleGenerateBase(text, styleParams, header, glyphMap);
+            if (count) {
+                // Save to history
+                const entry = {
+                    id: Date.now(),
+                    title: header.title || text.slice(0, 40).trim() + '...',
+                    pages: count,
+                    style: selectedStyle.name,
+                    date: new Date().toLocaleString()
+                };
+                const newHistory = [entry, ...history.slice(0, 9)];
+                setHistory(newHistory);
+                localStorage.setItem('hw-history', JSON.stringify(newHistory));
+            }
         } catch (err) {
-            console.error('Generation error:', err);
-            showToast(`Error: ${err.message}`, 'error');
-        } finally {
-            setIsGenerating(false);
+            // Error handled by hook toast
         }
-    }, [text, header, selectedStyle, inkColor, pageType, lineSpacing, variationIntensity, history, glyphMap, fontSize, fatigueMode]);
+    }, [text, header, selectedStyle, inkColor, pageType, lineSpacing, variationIntensity, fontSize, fatigueMode, glyphMap, history, handleGenerateBase]);
 
     const handleDownload = useCallback(async () => {
         if (canvases.length === 0) return;
