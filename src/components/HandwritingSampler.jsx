@@ -13,7 +13,12 @@ export default function HandwritingSampler({ glyphMap, onGlyphMapChange }) {
     const [isCalibrating, setIsCalibrating] = useState(false);
     const [calibrationFile, setCalibrationFile] = useState(null);
     const [thresholdOffset, setThresholdOffset] = useState(0);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [error, setError] = useState('');
+    const [stats, setStats] = useState(null);
     const canvasRef = useRef(null);
+    const fileRef = useRef(null);
 
     // Load saved glyph map on mount
     useEffect(() => {
