@@ -51,12 +51,13 @@ export function useAI(aiConfig, setAiConfig) {
 
             if (!useMock) {
                 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                if (!isLocalhost && aiConfig.mode === 'local') {
+                if (aiConfig.mode === 'local' && !isLocalhost) {
                     showToast('Local AI unreachable. Using Demo Mode instead.', 'info');
                     handleAiGenerate(prompt, onContentGenerated, headerTitle, setHeader, true);
                     return;
                 }
-                setShowSetupGuide(true);
+                // We no longer auto-show the setup guide as it can be intrusive.
+                // The user can open it manually from the help/settings if needed.
             }
         } finally {
             setIsAiGenerating(false);
