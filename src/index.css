@@ -342,6 +342,7 @@ body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  background: var(--bg);
 }
 
 /* ===== LEFT PANEL ===== */
@@ -353,6 +354,7 @@ body {
   background: var(--bg-panel);
   border-right: 1px solid var(--border);
   overflow-y: auto;
+  z-index: 10;
 }
 
 .controls-section {
@@ -371,6 +373,61 @@ body {
   text-transform: uppercase;
   letter-spacing: 1.2px;
   margin-bottom: 12px;
+}
+
+/* ===== PREVIEW PANEL (CENTER) ===== */
+.preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ebebe5;
+  /* Desk-like light gray */
+  position: relative;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .preview-panel {
+  background: #0b0b0f;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
+}
+
+.professional-preview-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+  perspective: 1000px;
+}
+
+/* ===== RIGHT PANEL (ADS) ===== */
+.right-panel {
+  width: 320px;
+  min-width: 300px;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.right-panel-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Ensure AdUnit fits well */
+.right-panel .ad-container {
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
 }
 
 /* ===== TEXT INPUT ===== */

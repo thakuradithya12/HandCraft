@@ -390,24 +390,31 @@ export default function App() {
                         hasPages={canvases.length > 0}
                     />
 
-                    {/* Sidebar Ad Slot */}
+                    {/* Left Sidebar Ad Slot */}
                     <div style={{ padding: '0 20px 20px' }}>
                         <AdUnit slot="SIDEBAR_SLOT_ID" label="Sponsored" />
                     </div>
                 </aside>
 
                 <main className="preview-panel">
-                    {/* Top Ad Slot (High Visibility) */}
-                    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
-                        <AdUnit slot="TOP_BANNER_ID" style={{ display: 'block', height: '90px' }} />
+                    <div className="professional-preview-container">
+                        <PagePreview
+                            canvases={canvases}
+                            currentPage={currentPage}
+                            onPageChange={setCurrentPage}
+                        />
                     </div>
-
-                    <PagePreview
-                        canvases={canvases}
-                        currentPage={currentPage}
-                        onPageChange={setCurrentPage}
-                    />
                 </main>
+
+                <aside className="right-panel">
+                    <div className="section-label" style={{ padding: '16px 20px 8px', borderBottom: '1px solid var(--border)' }}>SPONSORED</div>
+                    <div className="right-panel-content">
+                        <AdUnit slot="RIGHT_SIDEBAR_TOP" label="ADVERTISEMENT" />
+                        <div style={{ marginTop: '20px' }}>
+                            <AdUnit slot="RIGHT_SIDEBAR_BOTTOM" />
+                        </div>
+                    </div>
+                </aside>
             </div>
 
             <footer className="professional-footer">
