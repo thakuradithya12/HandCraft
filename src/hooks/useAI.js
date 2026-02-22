@@ -16,6 +16,17 @@ export function useAI(aiConfig, setAiConfig) {
         setIsAiGenerating(true);
         setAiStatus(useMock ? 'Generating Demo...' : 'Connecting to AI Service...');
 
+        // Pre-check for missing credentials to avoid multiple errors
+        if (!useMock) {
+            const isLocal = aiConfig.mode === 'local';
+            const hasKey = aiConfig.apiKey && aiConfig.apiKey.trim().length > 5;
+
+            if (aiConfig.mode === 'cloud' && !hasKey) {
+                showToast('No API Key found. Using Demo Mode.', 'info');
+                return handleAiGenerate(prompt, onContentGenerated, headerTitle, setHeader, true);
+            }
+        }
+
         try {
             const content = await generateAssignment(
                 prompt,
@@ -28,7 +39,7 @@ export function useAI(aiConfig, setAiConfig) {
             );
 
             if (!content || !content.trim()) {
-                throw new Error('AI generated empty content. Please try again with a different prompt.');
+                throw new Error('AI generated empty content. Please try again.');
             }
 
             onContentGenerated(content);
@@ -47,17 +58,15 @@ export function useAI(aiConfig, setAiConfig) {
         } catch (err) {
             console.error('AI generation error:', err);
             setAiStatus('');
-            showToast(`AI Error: ${err.message}`, 'error');
 
+            // User requested no intrusive setup guide
             if (!useMock) {
+                showToast(`AI Error: ${err.message}`, 'error');
                 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 if (aiConfig.mode === 'local' && !isLocalhost) {
-                    showToast('Local AI unreachable. Using Demo Mode instead.', 'info');
+                    showToast('Local AI unreachable. Using Demo Mode.', 'info');
                     handleAiGenerate(prompt, onContentGenerated, headerTitle, setHeader, true);
-                    return;
                 }
-                // We no longer auto-show the setup guide as it can be intrusive.
-                // The user can open it manually from the help/settings if needed.
             }
         } finally {
             setIsAiGenerating(false);

@@ -11,10 +11,18 @@ export default function ToastContainer() {
     const [toasts, setToasts] = useState([]);
 
     const addToast = useCallback((toast) => {
-        setToasts(prev => [...prev.slice(-4), toast]);
+        setToasts(prev => {
+            // Prevent duplicate messages within last 2 seconds
+            const isDuplicate = prev.some(t => t.msg === toast.msg);
+            if (isDuplicate) return prev;
+
+            // Limit to 3 toasts max
+            return [...prev.slice(-2), toast];
+        });
+
         setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== toast.id));
-        }, 3500);
+        }, 4000);
     }, []);
 
     useEffect(() => {
